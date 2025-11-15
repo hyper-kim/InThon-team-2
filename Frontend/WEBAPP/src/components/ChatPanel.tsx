@@ -5,8 +5,8 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 const initialMessages = [
   { id: 1, text: '안녕하세요! AI 조교입니다. 무엇을 도와드릴까요?', isUser: false },
-  { id: 2, text: 'I\'m interested in AI and computer vision research.', isUser: true },
-  { id: 3, text: 'Great! I recommend checking out the AI & Machine Learning Lab and the Computer Vision Research Lab. Would you like more details about either of these?', isUser: false }
+  { id: 2, text: '내가 AI 관련 랩실에 들어갈 수 있을까?', isUser: true },
+  { id: 3, text: '자기소개서와 관심 분야를 기반으로 랩실을 추천해드리겠습니다.', isUser: false }
 ];
 
 export function ChatPanel() {
