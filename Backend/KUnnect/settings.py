@@ -144,6 +144,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # [!!!] 3. React 개발 서버의 요청을 허용합니다. (파일 맨 아래 추가)
 # React 개발 서버 주소
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_PREFLIGHT_EXIT = True
 # (나중에 React를 'build'해서 Django가 직접 서빙할 때는 이 설정이 필요 없지만,
 # 지금처럼 React 개발 서버를 따로 돌릴 때는 필수입니다.)
 CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
