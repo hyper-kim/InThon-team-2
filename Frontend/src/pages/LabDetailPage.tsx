@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Calendar, FileText, Users, Clock } from 'lucide-react';
 import { PageContainer } from '../components/PageContainer';
 import { TagChip } from '../components/TagChip';
+import { ChatPanel } from '../components/ChatPanel';
 import { labsData } from '../App';
 
 export function LabDetailPage() {
@@ -42,6 +43,8 @@ export function LabDetailPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div>
+            {/* Chat Panel for this lab */}
+            <ChatPanel labId={id || ''} />
               <h1 className="text-4xl mb-3 font-[Paperlogy]">{lab.name}</h1>
               <div className="flex items-center gap-2 text-[#4a5565] mb-4">
                 <Users className="w-5 h-5" />

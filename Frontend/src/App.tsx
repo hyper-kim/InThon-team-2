@@ -8,7 +8,6 @@ import { LabDetailPage } from './pages/LabDetailPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { AdminPage } from './pages/AdminPage';
-import { ChatPanel } from './components/ChatPanel';
 
 // Mock lab data
 export const labsData = [
@@ -294,9 +293,6 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-
-        {/* AI Assistant Panel: 로그인한 학생만 표시 */}
-        {auth.isLoggedIn && auth.userType === 'student' && <ChatPanel />}
       </div>
     </Router>
   );
