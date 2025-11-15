@@ -21,7 +21,7 @@ from django.urls import path, include
 # [!!!] 2줄 추가 [!!!]
 from django.conf import settings
 from django.conf.urls.static import static
-from lab import views
+from lab import api_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),

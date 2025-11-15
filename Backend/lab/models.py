@@ -15,7 +15,11 @@ class LabProfile(models.Model):
         max_length=100, 
         verbose_name="연구실 이름"
     )
-    
+    professor_name = models.CharField(
+        max_length=100, 
+        blank=True, 
+        verbose_name="교수님 성함"
+    )
     lab_instruction = models.CharField(
         blank = True,
         max_length = 500,
@@ -26,7 +30,12 @@ class LabProfile(models.Model):
         max_length = 200,
         verbose_name = "랩실 링크"
     )
-
+    tags = models.CharField(
+        max_length=255, 
+        blank=True, 
+        verbose_name="검색 태그", 
+        help_text="쉼표(,)로 구분하여 입력 (예: 인공지능,컴퓨터비전,HCI)"
+    )
     def __str__(self):
         return self.lab_name
 

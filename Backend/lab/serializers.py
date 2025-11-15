@@ -32,8 +32,9 @@ class LabProfileSerializer(serializers.ModelSerializer):
             'id', 
             'lab_name', 
             'professor_name',
-            'description',
+            'lab_instruction',
             'tags', # (모델에 tags 필드 추가 필요)
+            'lab_link',
             'tags_list',
             'availability_slots', # (read_only=True 제거)
             'jobposting_set',     # (read_only=True 제거)
