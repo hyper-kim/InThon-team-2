@@ -8,11 +8,9 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from .serializers import RegisterSerializer
 from lab.models import LabProfile
 from student.models import StudentProfile
-# [!!!] 1. CSRF 쿠키 강제 설정을 위한 데코레이터 임포트
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginAPI(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
@@ -32,6 +30,7 @@ class LoginAPI(APIView):
             return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
 # [!!!] 2. 로그아웃 API (lab -> accounts로 이동)
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPI(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
@@ -43,10 +42,9 @@ class LogoutAPI(APIView):
         else:
             # 이미 로그아웃된 상태도 성공으로 처리 (멱등성)
             return Response({"success": True, "message": "Already logged out or not authenticated."})
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+
 class SessionCheckAPI(APIView):
     permission_classes = [permissions.AllowAny]
-    @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         if request.user.is_authenticated:
             role = None
@@ -58,6 +56,7 @@ class SessionCheckAPI(APIView):
         else:
             return Response({"is_authenticated": False})
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterAPI(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer

@@ -52,7 +52,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -120,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "ko-kr"
+LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
 
@@ -160,7 +160,7 @@ CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
 # REST Framework 설정 - SPA 환경에서 CSRF 비활성화
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',  # DRF에서 세션 인증 유지
+        'accounts.authentication.CsrfExemptSessionAuthentication',  # DRF에서 세션 인증 유지
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # 각 view에서 개별적으로 권한 관리
@@ -175,10 +175,10 @@ CSRF_ENABLED = False
 
 USE_X_FORWARDED_HOST = True
 
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True  # SAMESITE='None'을 사용하려면 쿠키가 https를 통해서만 전송되어야 함
 
 # CSRF 쿠키에도 동일하게 적용합니다.
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 # --- [수정 끝] ---
