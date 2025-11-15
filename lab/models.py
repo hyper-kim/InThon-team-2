@@ -15,9 +15,16 @@ class LabProfile(models.Model):
         max_length=100, 
         verbose_name="연구실 이름"
     )
-    schedule_info = models.TextField(
-        blank=True, 
-        verbose_name="면담 가능 시간"
+    
+    lab_instruction = models.CharField(
+        blank = True,
+        max_length = 500,
+        verbose_name="랩 소개"
+    )
+    lab_link = models.URLField(
+        blank = True,
+        max_length = 200,
+        verbose_name = "랩실 링크"
     )
 
     def __str__(self):
@@ -60,3 +67,42 @@ class JobPosting(models.Model):
 
     def __str__(self):
         return f"[{self.lab.lab_name}] {self.title}"
+    
+class LabAvailability(models.Model):
+    # 'LabProfile'과 1:N 관계
+    lab = models.ForeignKey(
+        LabProfile, 
+        on_delete=models.CASCADE,
+        related_name="availability_slots" # 뷰에서 부르기 편한 이름
+    )
+    
+    # '요일' 선택 필드
+    WEEKDAY_CHOICES = [
+        (1, '월요일'),
+        (2, '화요일'),
+        (3, '수요일'),
+        (4, '목요일'),
+        (5, '금요일'),
+        (6, '토요일'),
+        (7, '일요일'),
+    ]
+    day = models.IntegerField(
+        choices=WEEKDAY_CHOICES, 
+        verbose_name="요일"
+    )
+    
+    # '시작 시간' 선택 필드
+    start_time = models.TimeField(verbose_name="시작 시간")
+    
+    # '종료 시간' 선택 필드
+    end_time = models.TimeField(verbose_name="종료 시간")
+
+    class Meta:
+        verbose_name = "면담 가능 시간"
+        verbose_name_plural = "면담 가능 시간 목록"
+        # (월요일 10:00-11:00) 처럼 보이게 정렬
+        ordering = ['day', 'start_time'] 
+
+    def __str__(self):
+        # "get_day_display"는 (1) -> '월요일' 처럼 choices의 값을 가져옴
+        return f"{self.lab.lab_name} - {self.get_day_display()} {self.start_time} ~ {self.end_time}"

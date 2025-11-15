@@ -3,7 +3,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required # [!!!] 로그인 필수
 from .models import LabProfile
-from .forms import LabProfileForm, JobPostingFormSet
+from .forms import LabProfileForm, JobPostingFormSet, LabAvailabilityFormSet
 
 @login_required # [!!!] 이 페이지는 로그인한 사용자만 접근 가능
 def manage_lab_profile(request):
@@ -22,25 +22,33 @@ def manage_lab_profile(request):
         # 2-1. 메인 프로필 폼과 (파일 포함)
         form = LabProfileForm(request.POST, instance=profile)
         # 2-2. 하위 모집 공고 폼셋을 (파일 포함) 동시에 처리
-        formset = JobPostingFormSet(request.POST, request.FILES, instance=profile)
+        formset_jobs = JobPostingFormSet(request.POST, request.FILES, instance=profile)
+        # [!!!] 1. 'POST'일 때 AvailabilityFormSet 인스턴스 생성
+        formset_avail = LabAvailabilityFormSet(request.POST, instance=profile)
         
-        if form.is_valid() and formset.is_valid():
+        # [!!!] 2. 3개 폼 모두 유효한지 검사
+        if form.is_valid() and formset_jobs.is_valid() and formset_avail.is_valid():
             form.save()
-            formset.save()
-            # 저장 후 '내 랩 관리' 페이지로 새로고침
-            return redirect('manage_lab_profile') # urls.py에 설정할 name
+            formset_jobs.save()
+            formset_avail.save() # [!!!] 3. 저장
+            
+            return redirect('manage_lab_profile')
 
-    # 3. [GET] 그냥 페이지에 접속했을 때
-    else:
-        # 3-1. DB에 저장된 정보로 폼을 채움
+    else: # 'GET'일 때
         form = LabProfileForm(instance=profile)
-        # 3-2. DB에 저장된 정보로 폼셋을 채움
-        formset = JobPostingFormSet(instance=profile)
+        formset_jobs = JobPostingFormSet(instance=profile)
+        
+        # [!!!] 4. 'GET'일 때 AvailabilityFormSet 인스턴스 생성
+        formset_avail = LabAvailabilityFormSet(instance=profile)
 
-    # 4. 템플릿에 폼과 폼셋을 전달
     context = {
         'form': form,
-        'formset': formset,
+        'formset_jobs': formset_jobs,       # 이름 충돌을 피하기 위해 변경
+        'formset_avail': formset_avail,     # [!!!] 5. 컨텍스트에 추가
         'lab_name': profile.lab_name
     }
-    return render(request, 'lab/lab_profile_form.html', context)
+    return render(request, 'your_app/lab_profile_form.html', context)
+
+
+        
+        
