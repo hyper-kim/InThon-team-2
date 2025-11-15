@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status
-from lab.models import LabProfile
-from student.models import StudentProfile
-
 
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
 class LoginAPI(APIView):
@@ -17,12 +13,7 @@ class LoginAPI(APIView):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            role = None
-            if hasattr(user, 'labprofile'):
-                role = 'lab_admin'
-            elif hasattr(user,'studentprofile'):
-                role = 'student'
-            return Response({"success": True, "username": user.username,"role":role})
+            return Response({"success": True, "username": user.username})
         else:
             return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -41,5 +32,3 @@ class SessionCheckAPI(APIView):
             return Response({"is_authenticated": True, "username": request.user.username})
         else:
             return Response({"is_authenticated": False})
-=======
->>>>>>> 355ff58 (templates 수정)

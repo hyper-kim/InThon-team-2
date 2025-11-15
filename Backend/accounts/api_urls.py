@@ -1,9 +1,9 @@
 from django.urls import path
-from . import views # accounts 앱의 api_views
+from . import api_views # accounts 앱의 api_views
 
 urlpatterns = [
     # 'accounts' 앱 전용 API (인증)
-    path('login/', views.LoginAPI.as_view(), name='api_login'),
-    path('logout/', views.LogoutAPI.as_view(), name='api_logout'),
-    path('session-check/', views.SessionCheckAPI.as_view(), name='api_session_check'),
+    path('login/', api_views.LoginAPI.as_view(), name='api_login'),
+    path('logout/', api_views.LogoutAPI.as_view(), name='api_logout'),
+    path('session-check/', api_views.SessionCheckAPI.as_view(), name='api_session_check'),
 ]
