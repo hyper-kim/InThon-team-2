@@ -5,13 +5,33 @@ import { User, GraduationCap, Search, LogOut } from 'lucide-react';
 interface NavBarProps {
   onLogout: () => void;
 }
-
+const API_BASE_URL = 'https://shiny-system-v6j7j46w4g65cpqrj-8000.app.github.dev/';
 export function NavBar({ onLogout }: NavBarProps) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    onLogout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/logout/`, {
+        method: 'POST', // 405 오류를 해결하기 위해 POST 요청을 명시
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 세션 쿠키를 전달하여 Django 세션을 파괴
+      });
+      
+      // 상태 코드가 200 OK일 경우 (장고에서 success: true 응답)
+      if (response.ok) {
+        onLogout(); // React 앱의 로컬 상태 클리어
+        navigate('/login'); // 로그인 페이지로 이동
+      } else {
+        const errorData = await response.json();
+        console.error('Logout API failed:', errorData);
+        alert(`로그아웃 실패: ${errorData.message || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Network error during logout:', error);
+      alert('로그아웃 중 네트워크 오류가 발생했습니다. (Django 서버 확인 필요)');
+    }
   };
 
   return (

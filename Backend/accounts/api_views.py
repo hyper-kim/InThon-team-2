@@ -6,7 +6,8 @@ from rest_framework import generics, status, permissions
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import RegisterSerializer
-
+from lab.models import LabProfile
+from student.models import StudentProfile
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginAPI(APIView):
@@ -28,6 +29,7 @@ class LoginAPI(APIView):
             return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
 # [!!!] 2. 로그아웃 API (lab -> accounts로 이동)
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
