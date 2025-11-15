@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -41,5 +40,3 @@ class SessionCheckAPI(APIView):
             return Response({"is_authenticated": True, "username": request.user.username})
         else:
             return Response({"is_authenticated": False})
-=======
->>>>>>> 355ff58 (templates 수정)
