@@ -12,7 +12,7 @@ export function LabAdminPage() {
 
   // 1. 랩 관리자 정보 로드
   useEffect(() => {
-    fetch('http://localhost:8000/api/lab/my-profile/', { credentials: 'include' })
+    fetch(`${API_BASE}api/lab/my-profile/`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setLabData(data);
@@ -23,25 +23,25 @@ export function LabAdminPage() {
   // [!!!] 2. 동기화 버튼 클릭 핸들러
   const handleSync = () => {
     setIsSyncing(true);
-    fetch('http://localhost:8000/api/lab/my-profile/sync-external/', {
+    fetch(`${API_BASE}api/lab/my-profile/sync-external/`, {
       method: 'POST',
       credentials: 'include',
       headers: {
-         // (CSRF 토큰 설정이 필요할 수 있습니다. 
-         //  우선 세션 인증으로 시도합니다.)
+        // (CSRF 토큰 설정이 필요할 수 있습니다. 
+        //  우선 세션 인증으로 시도합니다.)
       }
     })
-    .then(res => res.json())
-    .then(data => {
-      setLabData(data); // 동기화된 최신 데이터로 UI 업데이트
-      setIsSyncing(false);
-      alert('외부 데이터 동기화 및 AI 요약이 완료되었습니다.');
-    })
-    .catch(err => {
-      console.error(err);
-      setIsSyncing(false);
-      alert('동기화 중 오류 발생');
-    });
+      .then(res => res.json())
+      .then(data => {
+        setLabData(data); // 동기화된 최신 데이터로 UI 업데이트
+        setIsSyncing(false);
+        alert('외부 데이터 동기화 및 AI 요약이 완료되었습니다.');
+      })
+      .catch(err => {
+        console.error(err);
+        setIsSyncing(false);
+        alert('동기화 중 오류 발생');
+      });
   };
 
   if (isLoading) {
@@ -56,14 +56,14 @@ export function LabAdminPage() {
           {isSyncing ? '동기화 중... (1-2분 소요)' : '외부 데이터 동기화'}
         </PrimaryButton>
       </div>
-      
+
       {/* (TODO: labData로 폼 필드 채우기) */}
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h3 className="text-xl font-semibold">AI 연구 요약</h3>
         <p className="text-gray-700 mt-2">
           {labData?.research_summary_ko || "아직 요약된 정보가 없습니다. 동기화 버튼을 눌러주세요."}
         </p>
-        
+
         <h3 className="text-xl font-semibold mt-6">GitHub 프로젝트</h3>
         <pre className="text-xs bg-gray-100 p-4 rounded mt-2">
           {JSON.stringify(labData?.github_projects_json, null, 2)}
@@ -73,80 +73,6 @@ export function LabAdminPage() {
   );
 }
 
-const [isLoading, setIsLoading] = useState(true);
-
-useEffect(() => {
-  const fetchProfileData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}api/lab/my-profile/`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 로그인 세션(쿠키)을 보내기 위해 필수
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // 백엔드에서 받은 데이터로 모든 state를 채웁니다.
-        setLabName(data.lab_name || '');
-        setProfessorName(data.professor_name || '');
-        setLabDescription(data.lab_description || '');
-        setEmail(data.email || '');
-        setSelectedCategories(data.categories || []);
-        setTimeSlots(data.time_slots || []);
-        setJobPostings(data.job_postings || []);
-        setPapers(data.papers || []);
-      } else {
-        // response.status === 401 또는 403 (인증 실패)
-        console.error('프로필을 불러오지 못했습니다.');
-        // (선택) 로그인 페이지로 리디렉션
-        // navigate('/login');
-      }
-    } catch (err) {
-      console.error('서버 연결 오류:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  fetchProfileData();
-}, []); // [] : 페이지가 처음 렌더링될 때 1회만 실행
-
-const handleSaveAll = async () => {
-  // 1. 현재 모든 로컬 state를 백엔드가 받을 JSON 객체로 조합
-  const profileData = {
-    lab_name: labName,
-    professor_name: professorName,
-    lab_description: labDescription,
-    email: email,
-    categories: selectedCategories,
-    time_slots: timeSlots,
-    job_postings: jobPostings,
-    papers: papers,
-    // (참고: 백엔드 `serializers.py`의 필드명과 일치해야 함)
-  };
-
-  try {
-    const response = await fetch(`${API_BASE}api/lab/my-profile/`, {
-      method: 'PUT', // 또는 'PATCH' (데이터 전체를 덮어쓰면 PUT)
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // 인증 쿠키 전송
-      body: JSON.stringify(profileData), // 2. 조합된 데이터를 JSON 문자열로 변환
-    });
-
-    if (response.ok) {
-      alert('성공적으로 저장되었습니다.');
-      const savedData = await response.json();
-      // (선택) 저장 후 서버가 준 데이터로 state 다시 싱크
-      // set... 함수들 호출
-    } else {
-      const errorData = await response.json();
-      alert('저장에 실패했습니다: ' + JSON.stringify(errorData));
-    }
-  } catch (err) {
-    alert('서버 오류: ' + err.message);
-  }
-};
 
 interface TimeSlot {
   id: number;
@@ -201,6 +127,74 @@ export function AdminPage({ onLogout }: AdminPageProps) {
     { id: 1, title: '', journal: '', year: '' }
   ]);
 
+  // Loading state and initial profile fetch moved inside component
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_BASE}api/lab/my-profile/`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // 로그인 세션(쿠키)을 보내기 위해 필수
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setLabName(data.lab_name || '');
+          setProfessorName(data.professor_name || '');
+          setLabDescription(data.lab_description || '');
+          setEmail(data.email || '');
+          setSelectedCategories(data.categories || []);
+          setTimeSlots(data.time_slots || []);
+          setJobPostings(data.job_postings || []);
+          setPapers(data.papers || []);
+        } else {
+          console.error('프로필을 불러오지 못했습니다.');
+        }
+      } catch (err) {
+        console.error('서버 연결 오류:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handleSaveAll = async () => {
+    const profileData = {
+      lab_name: labName,
+      professor_name: professorName,
+      lab_description: labDescription,
+      email: email,
+      categories: selectedCategories,
+      time_slots: timeSlots,
+      job_postings: jobPostings,
+      papers: papers,
+    };
+
+    try {
+      const response = await fetch(`${API_BASE}api/lab/my-profile/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
+      });
+
+      if (response.ok) {
+        alert('성공적으로 저장되었습니다.');
+        const savedData = await response.json();
+      } else {
+        const errorData = await response.json();
+        alert('저장에 실패했습니다: ' + JSON.stringify(errorData));
+      }
+    } catch (err: any) {
+      alert('서버 오류: ' + err?.message);
+    }
+  };
+
   const handleLogout = () => {
     onLogout();
     navigate('/login');
@@ -236,7 +230,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <PageContainer>
           <div className="flex items-center justify-between h-16">
-            <div 
+            <div
               className="flex items-center gap-3 cursor-pointer"
               onClick={() => navigate('/')}
             >
@@ -332,11 +326,10 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                             : [...prev, category]
                         );
                       }}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        selectedCategories.includes(category)
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategories.includes(category)
                           ? 'bg-[#A1121A] text-white shadow-md'
                           : 'bg-[#F3F3F5] text-[#364153] hover:bg-[#E8E8EA] border border-[#D1D5DC]'
-                      }`}
+                        }`}
                     >
                       {category}
                     </button>
@@ -348,7 +341,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                   </p>
                 )}
               </div>
-              
+
             </div>
           </div>
 
@@ -632,7 +625,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
 
           {/* Save All Button */}
           <div className="mt-8 flex justify-center">
-            <button onclick={handleSaveAll}
+            <button onClick={handleSaveAll}
             className="px-8 py-3 bg-[#A1121A] text-white rounded-lg hover:bg-[#8A0F16] transition-colors font-medium shadow-sm">
               모든 변경사항 저장하기
             </button>

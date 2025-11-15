@@ -371,7 +371,7 @@ export default function App() {
                 !auth.isLoggedIn ? (
                   <Navigate to="/login" replace />
                 ) : auth.userType === 'student' ? (
-                  <StudentProfilePage />
+                  <StudentProfilePage onLogout={handleLogout} />
                 ) : (
                   <Navigate to="/" replace />
                 )
