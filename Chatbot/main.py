@@ -1,16 +1,20 @@
-from fastapi import FastAPI, UploadFile, Form, File
+from fastapi import FastAPI
 from typing import List
 from fastapi.responses import FileResponse
-import faiss
-import pickle
 from pydantic import BaseModel
 import google.generativeai as genai
 import google.generativeai.types as genai_types
 from typing import List
 import os
-from sentence_transformers import SentenceTransformer
-import uuid
-import util
+import embed
+import crawl
+import shutil
+
+# prepend system instruction manually
+SYSTEM_PROMPT = """You are a helpful chatbot of Korea University. 
+Your work is to find relevant information for students. 
+Answer with the language used in the question.
+Answer with short and concise manner."""
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
@@ -19,13 +23,11 @@ app = FastAPI()
 BASE_DIR = "labs"
 STATIC_DIR = "static"
 
-EMBED_MODEL = SentenceTransformer("all-mpnet-base-v2")
-INDEX_PATH = "faiss_index.bin"
-METADATA_PATH = "faiss_metadata.pkl"
 
-# prepend system instruction manually
-SYSTEM_PROMPT = """You are a helpful chatbot of Korea University. 
-Your work is to find relevant information for students. Answer with short and concise manner."""
+class LabInfoRequest(BaseModel):
+    lab_id: str
+    intro_urls: List[str]
+    publication_url: str
 
 
 class ChatGeneralRequest(BaseModel):
@@ -46,117 +48,62 @@ async def read_index():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 
-@app.post("/create_embedding")
-async def create_embedding(
-    lab_id: str = Form(...),
-    lab_intro: str = Form(...),
-    pdf_files: List[UploadFile] = File(...),
-):
-    print(f"Creating embedding for lab: {lab_id}")
-    print(f"Number of PDF files: {len(pdf_files)}")
+# --- Lab setup / download introduction and pdfs ---
+@app.post("/load_lab_info")
+async def load_lab_info(request: LabInfoRequest):
+    print(f"Loading lab info for: {request.lab_id}")
+    print(f"Intro links: {request.intro_urls}")
+    print(f"Publication link: {request.publication_url}")
 
     # prepare paths
-    lab_path = os.path.join(BASE_DIR, lab_id)
-    papers_path = os.path.join(lab_path, "papers")
+    lab_path = os.path.join(BASE_DIR, request.lab_id)
+    intro_path = os.path.join(lab_path, "intro.txt")
+    pdf_path = os.path.join(lab_path, "papers")
+
+    # clear and create directories
+    if os.path.exists(lab_path):
+        shutil.rmtree(lab_path)
     os.makedirs(lab_path, exist_ok=True)
-    index_path = os.path.join(lab_path, INDEX_PATH)
-    metadata_path = os.path.join(lab_path, METADATA_PATH)
+    os.makedirs(pdf_path, exist_ok=True)
 
-    # save PDFs
-    util.save_pdfs(pdf_files, papers_path)
+    # prepare intro and pdfs
+    crawl.download_intro(intro_path, request.intro_urls)
+    crawl.download_pdfs_advanced(pdf_path, request.publication_url)
 
-    # init index & metadata
-    dim = EMBED_MODEL.get_sentence_embedding_dimension()
-    index = faiss.IndexFlatL2(dim)
-    metadata = []
-
-    # injest lab intro
-    intro_emb = EMBED_MODEL.encode(lab_intro)
-    index.add(intro_emb.reshape(1, -1))
-    metadata.append(
-        {
-            "id": str(uuid.uuid4()),
-            "source": "lab_intro",
-            "page": 0,
-            "chunk_index": 0,
-            "text": lab_intro,
-        }
-    )
-
-    # ingest PDFs
-    for f in os.listdir(papers_path):
-        if f.lower().endswith(".pdf"):
-            util.ingest_pdf(os.path.join(papers_path, f), index, metadata)
-
-    # save index & metadata
-    faiss.write_index(index, index_path)
-    with open(metadata_path, "wb") as fh:
-        pickle.dump(metadata, fh)
-    print("Ingest complete")
-
-    return {"status": "ok", "lab_id": lab_id, "chunks": len(metadata)}
+    return {"status": "ok", "lab_id": request.lab_id}
 
 
-def load_lab_index(lab_id: str):
-    lab_path = os.path.join(BASE_DIR, lab_id)
-    index_path = os.path.join(lab_path, INDEX_PATH)
-    metadata_path = os.path.join(lab_path, METADATA_PATH)
+# --- Create embedding ---
+@app.post("/create_embedding")
+async def create_embedding(request: LabInfoRequest):
+    print(f"Creating embedding for lab: {request.lab_id}")
 
-    index = faiss.read_index(index_path)
-    with open(metadata_path, "rb") as fh:
-        metadata = pickle.load(fh)
-    return index, metadata
+    embed.create_embedding(request.lab_id)
 
-
-# --- Retrieval ---
-def retrieve(index, metadata, query: str, top_k=10):
-    qv = EMBED_MODEL.encode(query).reshape(1, -1)
-    D, I = index.search(qv, top_k)
-    return [metadata[i] for i in I[0] if i >= 0]
-
-
-# --- Prompt builder for two modes ---
-def build_prompt(
-    contexts: List[dict], question: str, mode, job_info=None, user_info=None
-):
-    header = (
-        "You are an assistant that answers using only the provided sources. "
-        "Cite the source filename and page when available. If answer cannot be found, say you don't know.",
-    )
-    ctx = "\n\n".join(
-        [f"SOURCE: {c['source']} (page {c['page']})\n{c['text']}" for c in contexts]
-    )
-
-    footer = "\nAnswer succinctly, then list sources."
-
-    if mode == "general":
-        return f"{header}LAB CONTEXT:{ctx}QUESTION: {question}{footer}"
-    if mode == "job":
-        return f"{header}LAB CONTEXT:{ctx}JOB INFO:{job_info}USER INFO:{user_info}QUESTION: {question}{footer}"
-
+    return {"status": "embedding created", "lab_id": request.lab_id}
 
 # --- Lab Q&A ---
 @app.post("/chat_general")
 async def chat_general(request: ChatGeneralRequest):
-    index, metadata = load_lab_index(request.lab_id)
-    results = retrieve(index, metadata, request.question)
-    prompt = build_prompt(results, request.question, mode="general")
+    index, metadata = embed.load_lab_index(request.lab_id)
+    results = embed.retrieve(index, metadata, request.question)
+    prompt = embed.build_prompt(results, request.question, mode="general")
 
     full_prompt = f"{SYSTEM_PROMPT}\n\nUser question:\n{prompt}"
     model = genai.GenerativeModel("models/gemini-2.5-flash")
     resp = model.generate_content(
         full_prompt,
-        generation_config=genai_types.GenerationConfig(max_output_tokens=1024),
+        generation_config=genai_types.GenerationConfig(max_output_tokens=2048),
     )
-    return {"answer": resp.text }
+    return {"answer": resp.text}
 
 
 # --- Job Q&A ---
 @app.post("/chat_job")
 async def chat_job(request: ChatJobRequest):
-    index, metadata = load_lab_index(request.lab_id)
-    results = retrieve(index, metadata, request.question)
-    prompt = build_prompt(
+    index, metadata = embed.load_lab_index(request.lab_id)
+    results = embed.retrieve(index, metadata, request.question)
+    prompt = embed.build_prompt(
         results,
         request.question,
         mode="job",
@@ -168,6 +115,6 @@ async def chat_job(request: ChatJobRequest):
     model = genai.GenerativeModel("models/gemini-2.5-flash")
     resp = model.generate_content(
         full_prompt,
-        generation_config=genai_types.GenerationConfig(max_output_tokens=1024),
+        generation_config=genai_types.GenerationConfig(max_output_tokens=2048),
     )
-    return {"answer": resp.text }
+    return {"answer": resp.text}
