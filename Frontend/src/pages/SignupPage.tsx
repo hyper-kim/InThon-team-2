@@ -348,9 +348,7 @@ export function SignupPage() {
             )}
           </div>
 
-          {/* Confirm Password Input (Student mode only) */}
-          {userType === 'student' && (
-            <div>
+          <div>
               <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호 확인</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
@@ -379,7 +377,7 @@ export function SignupPage() {
                 )}
               </div>
             </div>
-          )}
+          
 
           {/* Signup Button */}
           <button
