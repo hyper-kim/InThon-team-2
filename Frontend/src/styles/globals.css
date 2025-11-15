@@ -1,6 +1,53 @@
+/* Custom fonts */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy/Paperlogy-4Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy/Paperlogy-5Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy/Paperlogy-7Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../fonts/Pretendard/Pretendard-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../fonts/Pretendard/Pretendard-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../fonts/Pretendard/Pretendard-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --font-sans: 'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-display: 'Paperlogy', Georgia, serif;
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -126,6 +173,11 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Use Pretendard as the default UI font and Paperlogy for display headings */
+  body {
+    font-family: var(--font-sans);
   }
 }
 

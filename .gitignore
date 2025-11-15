@@ -1,6 +1,8 @@
 # .gitignore 파일 내용 예시
 labs/
 
+build/
+
 # Python 가상환경
 venv/
 *.env

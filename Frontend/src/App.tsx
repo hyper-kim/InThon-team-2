@@ -146,7 +146,7 @@ interface AuthState {
 const getInitialAuthState = (): AuthState => {
   // ⚠️ localStorage 자동 로그인 기능을 비활성화하려면 아래를 주석 처리하세요
   // 개발 중에는 매번 로그인 페이지에서 시작하는 것이 편리합니다.
-  
+
   /* 자동 로그인 활성화하려면 이 주석을 해제하세요
   try {
     const savedUserType = localStorage.getItem('userType');
@@ -165,7 +165,7 @@ const getInitialAuthState = (): AuthState => {
     // 앱이 멈추지 않고 로그아웃 상태로 강제 진행합니다.
   }
   */
-  
+
   // 기본값 (로그아웃 상태)
   return {
     isLoggedIn: false,
@@ -213,18 +213,18 @@ export default function App() {
       console.log('프론트엔드 로그아웃은 계속 진행합니다.');
     }
     */
-    
+
     // State 초기화
     setAuth({
       isLoggedIn: false,
       userType: null,
       userId: ''
     });
-    
+
     // localStorage 정리
     localStorage.removeItem('userType');
     localStorage.removeItem('userId');
-    
+
     // sessionStorage도 정리 (혹시 다른 데이터가 있을 경우 대비)
     sessionStorage.clear();
   };
@@ -249,15 +249,15 @@ export default function App() {
             }
           />
 
-          <Route 
-            path="/signup" 
+          <Route
+            path="/signup"
             element={
               auth.isLoggedIn ? (
                 <Navigate to={auth.userType === 'admin' ? '/admin' : '/'} replace />
               ) : (
                 <SignupPage />
               )
-            } 
+            }
           />
 
           {/* 메인 페이지: 로그인 없이도 접근 가능 */}
