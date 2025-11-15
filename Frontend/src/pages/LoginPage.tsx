@@ -9,6 +9,23 @@ interface LoginPageProps {
   onLogin: (userType: UserType, userId: string) => void;
 }
 
+// [!!!] 1. csrftoken 쿠키 값을 읽는 헬퍼 함수 추가 (파일 상단)
+function getCookie(name: string): string | null {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [userType, setUserType] = useState<UserType>('student');
   const [email, setEmail] = useState('');
@@ -28,12 +45,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
     setError('');
     setIsLoading(true);
-
+    const csrfToken = getCookie('csrftoken');
     try {
       const response = await fetch(`${API_BASE}api/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken || '',
         },
         credentials: 'include', // Include cookies for session
         body: JSON.stringify({
