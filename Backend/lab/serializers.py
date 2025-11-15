@@ -9,36 +9,64 @@ class LabAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = LabAvailability
         fields = ['id', 'day', 'start_time', 'end_time'] # 'lab' 필드는 제외 (부모가 정해줌)
+        read_only_fields = ['id']
 
 # 2. '모집 공고' Serializer
 class JobPostingSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPosting
         fields = ['id', 'title', 'description', 'deadline', 'attachment']
+        read_only_fields = ['id']
 
 # 3. '연구실 프로필' Serializer (위 2개를 포함!)
 class LabProfileSerializer(serializers.ModelSerializer):
     # [!] 1:N 관계인 자식들을 'nested serializer'로 포함합니다.
     # 'availability_slots'는 models.py의 related_name
-    availability_slots = LabAvailabilitySerializer(many=True)
+    availability_slots = LabAvailabilitySerializer(many=True,required=False)
     # 'jobposting_set'은 장고가 자동으로 만든 이름 (ForeignKey)
-    jobposting_set = JobPostingSerializer(many=True)
-
+    jobposting_set = JobPostingSerializer(many=True,required=False,source='jobposting_set.all')
+    tags_list = serializers.SerializerMethodField()
     class Meta:
         model = LabProfile
-        # [!] 'user' 필드는 읽기 전용(read_only)으로 설정 (보안)
-        fields = ['id', 'lab_name', 'availability_slots', 'jobposting_set', 'user']
-        read_only_fields = ['user']
+        fields = [
+            'id', 
+            'lab_name', 
+            'professor_name',
+            'description',
+            'tags', # (모델에 tags 필드 추가 필요)
+            'tags_list',
+            'availability_slots', # (read_only=True 제거)
+            'jobposting_set',     # (read_only=True 제거)
+            'user'
+        ]
+        read_only_fields = ['user', 'tags_list'] # tags는 쓰기, tags_list는 읽기
+        
+    def get_tags_list(self, obj):
+        if obj.tags:
+            return [tag.strip() for tag in obj.tags.split(',')]
+        return []
 
-    # [!!!] Update 로직 (매우 중요)
-    # React가 중첩된 JSON을 통째로 보냈을 때,
-    # 장고가 자식 모델들(JobPosting, LabAvailability)을 
-    # 생성/수정/삭제할 수 있게끔 'update' 메서드를 오버라이드해야 합니다.
-    # (이 부분은 해커톤에서 가장 복잡한 부분이라서, 
-    # 우선 'GET'(읽기)만 구현하고 'PUT'(수정)은 나중에 할 수도 있습니다.)
-    
-    # def update(self, instance, validated_data):
-    #     # ... (중첩된 데이터(slots, jobs)를 처리하는 로직 필요) ...
-    #     instance.lab_name = validated_data.get('lab_name', instance.lab_name)
-    #     instance.save()
-    #     return instance
+    # [!!!] 4. views.py의 저장 로직을 'update' 메서드로 구현
+    def update(self, instance, validated_data):
+        # 1. 중첩된 데이터(slots, jobs)를 validated_data에서 분리
+        slots_data = validated_data.pop('availability_slots', None)
+        jobs_data = validated_data.pop('jobposting_set', {}).get('all', None) # source='jobposting_set.all'에 맞춤
+
+        # 2. LabProfile의 기본 필드(lab_name, description 등) 업데이트
+        instance = super().update(instance, validated_data)
+
+        # 3. 면담 시간(slots) 업데이트 로직
+        if slots_data is not None:
+            # (간단한 MVP: 기존 것 다 지우고 새로 생성)
+            instance.availability_slots.all().delete()
+            for slot_data in slots_data:
+                LabAvailability.objects.create(lab=instance, **slot_data)
+
+        # 4. 모집 공고(jobs) 업데이트 로직
+        if jobs_data is not None:
+            # (간단한 MVP: 기존 것 다 지우고 새로 생성)
+            instance.jobposting_set.all().delete()
+            for job_data in jobs_data:
+                JobPosting.objects.create(lab=instance, **job_data)
+
+        return instance
