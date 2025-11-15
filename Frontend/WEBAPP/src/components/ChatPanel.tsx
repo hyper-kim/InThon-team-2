@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Send, MessageCircle, X, Minimize2 } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 const initialMessages = [
   { id: 1, text: '안녕하세요! AI 조교입니다. 무엇을 도와드릴까요?', isUser: false },
-  { id: 2, text: 'I\'m interested in AI and computer vision research.', isUser: true },
-  { id: 3, text: 'Great! I recommend checking out the AI & Machine Learning Lab and the Computer Vision Research Lab. Would you like more details about either of these?', isUser: false }
+  { id: 2, text: '내가 AI 관련 랩실에 들어갈 수 있을까?', isUser: true },
+  { id: 3, text: '자기소개서와 관심 분야를 기반으로 랩실을 추천해드리겠습니다.', isUser: false }
 ];
 
 export function ChatPanel() {
@@ -63,15 +64,12 @@ export function ChatPanel() {
           {/* Header */}
           <div className="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white">
-                  <path d="M12 3C7.03 3 3 7.03 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 7.03 16.97 3 12 3Z" fill="currentColor" fillOpacity="0.2"/>
-                  <circle cx="9" cy="10" r="1.5" fill="currentColor"/>
-                  <circle cx="15" cy="10" r="1.5" fill="currentColor"/>
-                  <path d="M8 6L6 4M16 6L18 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M9 14C9 14 10 16 12 16C14 16 15 14 15 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M7 11C7 11 7 12 6 12M17 11C17 11 17 12 18 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-0.5">
+                <ImageWithFallback
+                  src="https://i.im.ge/2025/11/15/nGJVBy.logo.png"
+                  alt="KuNnect AI Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <h3 className="text-sm">AI 조교</h3>
