@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .serializers import RegisterSerializer
 from lab.models import LabProfile
 from student.models import StudentProfile
+
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginAPI(APIView):
@@ -31,20 +32,31 @@ class LoginAPI(APIView):
 # [!!!] 2. 로그아웃 API (lab -> accounts로 이동)
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
-        logout(request)
-        return Response({"success": True, "message": "Logout successful."})
+        # API는 세션 기반이므로 인증 체크는 자동으로 됨
+        # 필요하면 request.user.is_authenticated를 직접 확인 가능
+        if request.user.is_authenticated:
+            logout(request)
+            return Response({"success": True, "message": "Logout successful."})
+        else:
+            # 이미 로그아웃된 상태도 성공으로 처리 (멱등성)
+            return Response({"success": True, "message": "Already logged out or not authenticated."})
 
-# [!!!] 3. 세션 확인 API (lab -> accounts로 이동)
 class SessionCheckAPI(APIView):
     permission_classes = [permissions.AllowAny]
     def get(self, request):
         if request.user.is_authenticated:
-            return Response({"is_authenticated": True, "username": request.user.username})
+            role = None
+            if hasattr(request.user, 'labprofile'):
+                role = 'lab_admin'
+            elif hasattr(request.user, 'studentprofile'):
+                role = 'student'
+            return Response({"is_authenticated": True, "username": request.user.username, "role": role})
         else:
             return Response({"is_authenticated": False})
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterAPI(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer

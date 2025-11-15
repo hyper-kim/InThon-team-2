@@ -3,16 +3,13 @@ from rest_framework import serializers
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
-    password1 = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password1', 'password2']
+        fields = ['email', 'password']
     
     def validate(self, data):
-        if data['password1'] != data['password2']:
-            raise serializers.ValidationError("비밀번호가 일치하지 않습니다.")
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError("이미 사용 중인 이메일입니다.")
 
@@ -22,6 +19,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data['email'],
             email=validated_data['email'],
-            password=validated_data['password1']
+            password=validated_data['password']
         )
         return user

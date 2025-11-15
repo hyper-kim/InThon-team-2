@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, User, Lock, Mail, CheckCircle2, XCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { API_BASE } from '../config';
 
 type UserType = 'student' | 'admin';
 
@@ -18,6 +19,8 @@ export function SignupPage() {
     hasNumber: false,
     hasSpecial: false
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
   // Password 형식 검증
@@ -38,46 +41,82 @@ export function SignupPage() {
     validatePassword(pwd);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Common validation - Email
     if (!email.trim()) {
-      alert('이메일을 입력해주세요.');
+      setError('이메일을 입력해주세요.');
       return;
     }
 
     // Password validation
     if (!validatePassword(password)) {
-      alert('비밀번호 형식을 확인해주세요.');
+      setError('비밀번호 형식을 확인해주세요.');
       return;
     }
 
     // Student-specific validation
     if (userType === 'student') {
       if (!name.trim()) {
-        alert('이름을 입력해주세요.');
+        setError('이름을 입력해주세요.');
         return;
       }
 
       if (!major.trim()) {
-        alert('전공을 입력해주세요.');
+        setError('전공을 입력해주세요.');
         return;
       }
 
       if (password !== confirmPassword) {
-        alert('비밀번호가 일치하지 않습니다.');
+        setError('비밀번호가 일치하지 않습니다.');
         return;
       }
 
-      // Success for student
-      alert(`회원가입 완료!\n환영합니다, ${name}님!`);
-    } else {
-      // Success for admin
-      alert('관리자 회원가입 완료!\n환영합니다!');
-    }
+      // Call backend API for student registration
+      setError('');
+      setIsLoading(true);
 
-    navigate('/login');
+      try {
+        const response = await fetch(`${API_BASE}api/auth/register/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          // Handle validation errors from backend
+          if (typeof errorData === 'object') {
+            const errorMessages = Object.values(errorData).flat();
+            const errorMessage = Array.isArray(errorMessages) && errorMessages[0] 
+              ? errorMessages[0]?.toString() 
+              : '회원가입에 실패했습니다.';
+            setError(errorMessage);
+          } else {
+            setError('회원가입에 실패했습니다.');
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        // Success - navigate to login
+        navigate('/login');
+      } catch (err) {
+        console.error('Signup error:', err);
+        setError('서버 연결에 실패했습니다. 다시 시도해주세요.');
+        setIsLoading(false);
+      }
+    } else {
+      // Admin signup not yet implemented
+      setError('관리자 회원가입은 준비 중입니다.');
+    }
   };
 
   const isPasswordValid = Object.values(passwordValidation).every(v => v);
@@ -104,7 +143,8 @@ export function SignupPage() {
           <button
             type="button"
             onClick={() => setUserType('student')}
-            className={`flex-1 py-3 rounded-lg transition-all font-bold text-center ${
+            disabled={isLoading}
+            className={`flex-1 py-3 rounded-lg transition-all font-bold text-center disabled:opacity-50 disabled:cursor-not-allowed ${
               userType === 'student'
                 ? 'bg-white text-[#A1121A] shadow-md'
                 : 'text-[#4a5565] hover:text-[#A1121A]'
@@ -115,7 +155,8 @@ export function SignupPage() {
           <button
             type="button"
             onClick={() => setUserType('admin')}
-            className={`flex-1 py-3 rounded-lg transition-all font-bold text-center ${
+            disabled={isLoading}
+            className={`flex-1 py-3 rounded-lg transition-all font-bold text-center disabled:opacity-50 disabled:cursor-not-allowed ${
               userType === 'admin'
                 ? 'bg-white text-[#A1121A] shadow-md'
                 : 'text-[#4a5565] hover:text-[#A1121A]'
@@ -124,6 +165,13 @@ export function SignupPage() {
             관리자
           </button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Signup Form */}
         <form onSubmit={handleSignup} className="space-y-4">
@@ -140,7 +188,8 @@ export function SignupPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="홍길동"
-                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -155,7 +204,8 @@ export function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="example@korea.ac.kr"
-                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -170,7 +220,8 @@ export function SignupPage() {
                     value={major}
                     onChange={(e) => setMajor(e.target.value)}
                     placeholder="컴퓨터학과"
-                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -208,7 +259,8 @@ export function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@korea.ac.kr"
-                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -224,8 +276,9 @@ export function SignupPage() {
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
+                disabled={isLoading}
                 placeholder="8자 이상 (영문, 숫자, 특수문자)"
-                className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] ${
+                className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed ${
                   password && isPasswordValid
                     ? 'border-green-500'
                     : password
@@ -302,8 +355,9 @@ export function SignupPage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
                   placeholder="비밀번호 재입력"
-                  className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] ${
+                  className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed ${
                     password && confirmPassword && password === confirmPassword
                       ? 'border-green-500'
                       : password && confirmPassword
@@ -327,10 +381,11 @@ export function SignupPage() {
           {/* Signup Button */}
           <button
             type="submit"
-            className="w-full h-14 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-6 font-medium"
+            disabled={isLoading}
+            className="w-full h-14 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-6 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <GraduationCap className="w-5 h-5" />
-            회원가입 완료
+            {isLoading ? '회원가입 중...' : '회원가입 완료'}
           </button>
         </form>
 

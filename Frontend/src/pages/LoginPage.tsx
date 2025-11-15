@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, User, Lock, LogIn } from 'lucide-react';
+import { API_BASE } from '../config';
 
 type UserType = 'student' | 'admin';
 
@@ -12,25 +13,57 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [userType, setUserType] = useState<UserType>('student');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
     if (!userId || !password) {
-      alert('ID와 비밀번호를 입력해주세요.');
+      setError('ID와 비밀번호를 입력해주세요.');
       return;
     }
 
-    // Call the login handler
-    onLogin(userType, userId);
-    
-    // Navigate based on user type
-    if (userType === 'student') {
-      navigate('/');
-    } else {
-      navigate('/admin');
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE}api/auth/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for session
+        body: JSON.stringify({
+          username: userId,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || '로그인에 실패했습니다.');
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Call the login handler to update app state
+      onLogin(userType, userId);
+      
+      // Navigate based on user type
+      if (userType === 'student') {
+        navigate('/');
+      } else {
+        navigate('/admin');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('서버 연결에 실패했습니다. 다시 시도해주세요.');
+      setIsLoading(false);
     }
   };
 
@@ -77,6 +110,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </button>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           {/* ID Input */}
@@ -88,7 +128,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="ID"
-                className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                disabled={isLoading}
+                className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -102,7 +143,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                disabled={isLoading}
+                className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -110,10 +152,11 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full h-14 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-6 font-medium"
+            disabled={isLoading}
+            className="w-full h-14 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-6 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <LogIn className="w-5 h-5" />
-            로그인
+            {isLoading ? '로그인 중...' : '로그인'}
           </button>
         </form>
 
