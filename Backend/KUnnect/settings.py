@@ -151,5 +151,8 @@ CORS_PREFLIGHT_EXIT = True
 CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
 # Codespaces와 같은 리버스 프록시 환경에서 https 리디렉션 오류를 방지합니다.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = [
+    "https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev",
+]
 USE_X_FORWARDED_HOST = True
 # --- [수정 끝] ---
