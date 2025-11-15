@@ -47,7 +47,7 @@ def manage_lab_profile(request):
         'formset_avail': formset_avail,     # [!!!] 5. 컨텍스트에 추가
         'lab_name': profile.lab_name
     }
-    return render(request, 'your_app/lab_profile_form.html', context)
+    return render(request, 'templates/lab_profile_register.html', context)
 
 
         

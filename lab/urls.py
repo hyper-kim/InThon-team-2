@@ -6,7 +6,7 @@ urlpatterns = [
     path(
         'my-profile/', 
         views.manage_lab_profile, 
-        name='manage_lab_profile' # 뷰에서 redirect('manage_lab_profile')로 사용됨
+        name='manage_lab_profile' # 템플릿/뷰에서 이 이름으로 URL을 찾을 수 있음
     ),
 
 ]
