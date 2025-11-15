@@ -60,11 +60,11 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('lab/')  # 로그인 후 이동할 페이지
+            return redirect('manage_lab_profile')  # 로그인 후 이동할 페이지
         else:
-            return render(request, 'lab/login.html', {'error': '아이디 또는 비밀번호가 잘못되었습니다.'})
+            return render(request, 'templates/login.html', {'error': '아이디 또는 비밀번호가 잘못되었습니다.'})
 
-    return render(request, 'lab/login.html')
+    return render(request, 'templates/login.html')
 
 # 로그아웃 요청 시 보일 뷰
 def logout_view(request):
