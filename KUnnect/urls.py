@@ -26,7 +26,8 @@ from lab import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # [!!!] /lab/ URL은 your_app.urls에서 처리하도록 위임
-    path('lab/', include('lab.urls')), 
+    # [!!!] 1. /api/ 주소는 api_urls.py가 처리
+    path('api/lab/', include('lab.api_urls')),
     
     # [!!!] 로그인/로그아웃 기능을 위해 추가 (중요)
     path('accounts/', include('django.contrib.auth.urls')),

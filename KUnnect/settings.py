@@ -40,11 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -135,3 +138,12 @@ MEDIA_ROOT = BASE_DIR / 'media' # BASE_DIR은 settings.py 상단에 정의되어
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# [!!!] 3. React 개발 서버의 요청을 허용합니다. (파일 맨 아래 추가)
+# React 개발 서버 주소
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000', 
+]
+# (나중에 React를 'build'해서 Django가 직접 서빙할 때는 이 설정이 필요 없지만,
+# 지금처럼 React 개발 서버를 따로 돌릴 때는 필수입니다.)
+CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해

@@ -70,3 +70,26 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+from rest_framework import generics, permissions
+from .models import LabProfile
+from .serializers import LabProfileSerializer
+
+# [!!!] 로그인한 유저의 프로필만 '읽고/수정'할 수 있는 API 뷰
+class LabProfileDetailAPI(generics.RetrieveUpdateAPIView):
+    """
+    로그인한 유저의 랩 프로필을 조회(GET)하거나 수정(PUT/PATCH)합니다.
+    URL: /api/lab/my-profile/
+    """
+    serializer_class = LabProfileSerializer
+    # [!] IsAuthenticated: 오직 로그인한 유저만 접근 가능
+    permission_classes = [permissions.IsAuthenticated]
+
+    # [!] get_object: URL에 id가 없어도,
+    # 로그인한 'request.user'를 기반으로 본인의 LabProfile을 반환
+    def get_object(self):
+        try:
+            # 기존 manage_lab_profile 뷰의 로직과 동일
+            return self.request.user.labprofile
+        except LabProfile.DoesNotExist:
+            raise Http404("Lab Profile not found for this user.")
