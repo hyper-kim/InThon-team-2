@@ -54,7 +54,9 @@ class LabProfile(models.Model):
     github_projects_json = models.JSONField(
         default=list, blank=True, verbose_name="GitHub 프로젝트 캐시"
     )
-    
+    dbpia_papers_json = models.JSONField(
+        default=list, blank=True, verbose_name="DBPia 논문 캐시"
+    )
     # [!!!] 4. 동기화 시간 추적
     last_external_sync = models.DateTimeField(
         null=True, blank=True, verbose_name="최종 외부 연동 시간"
