@@ -12,7 +12,6 @@ class LabProfile(models.Model):
         on_delete=models.CASCADE,
         verbose_name="랩 관리자 계정"
     )
-    
     lab_name = models.CharField(
         max_length=100, 
         verbose_name="연구실 이름"
@@ -22,7 +21,7 @@ class LabProfile(models.Model):
         blank=True, 
         verbose_name="교수님 성함"
     )
-    lab_instruction = models.CharField(
+    lab_description = models.CharField(
         blank = True,
         max_length = 500,
         verbose_name="랩 소개"
@@ -38,6 +37,8 @@ class LabProfile(models.Model):
         verbose_name="검색 태그", 
         help_text="쉼표(,)로 구분하여 입력 (예: 인공지능,컴퓨터비전,HCI)"
     )
+
+    
     scholar_author_id = models.CharField(
         max_length=50, blank=True, 
         verbose_name="Google Scholar Author ID",

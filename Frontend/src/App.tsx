@@ -11,7 +11,6 @@ import { AdminPage } from './pages/AdminPage';
 import { StudentProfilePage } from './pages/StudentProfilePage';
 import { API_BASE } from './config';
 import { JobPostingsPage } from './pages/JobPostingsPage';
-import { ChatPanel } from './components/ChatPanel';
 
 // Mock lab data
 export const labsData = [

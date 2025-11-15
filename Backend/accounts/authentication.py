@@ -1,5 +1,5 @@
-# from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import SessionAuthentication
 
-# class CsrfExemptSessionAuthentication(SessionAuthentication):
-#     def enforce_csrf(self, request):
-#         return  # CSRF 체크 무시
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return  # CSRF 체크 무시

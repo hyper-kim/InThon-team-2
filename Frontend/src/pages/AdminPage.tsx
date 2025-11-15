@@ -134,7 +134,6 @@ export function AdminPage({ onLogout }: AdminPageProps) {
           setEmail(data.email || '');
           setSelectedCategories(data.categories || []);
           setTimeSlots(data.time_slots || []);
-          setJobPostings(data.job_postings || []);
           setPapers(data.papers || []);
         } else {
           console.error('프로필을 불러오지 못했습니다.');
