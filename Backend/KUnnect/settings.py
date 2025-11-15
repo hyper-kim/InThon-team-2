@@ -144,7 +144,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # [!!!] 3. React 개발 서버의 요청을 허용합니다. (파일 맨 아래 추가)
 # React 개발 서버 주소
 CORS_ALLOW_ALL_ORIGINS = True
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 CORS_PREFLIGHT_EXIT = True
 # (나중에 React를 'build'해서 Django가 직접 서빙할 때는 이 설정이 필요 없지만,
 # 지금처럼 React 개발 서버를 따로 돌릴 때는 필수입니다.)
@@ -153,4 +157,11 @@ CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 USE_X_FORWARDED_HOST = True
+
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True  # SAMESITE='None'을 사용하려면 쿠키가 https를 통해서만 전송되어야 함
+
+# CSRF 쿠키에도 동일하게 적용합니다.
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
 # --- [수정 끝] ---

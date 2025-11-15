@@ -5,7 +5,7 @@ import { User, GraduationCap, Search, LogOut } from 'lucide-react';
 interface NavBarProps {
   onLogout: () => void;
 }
-const API_BASE_URL = 'https://shiny-system-v6j7j46w4g65cpqrj-8000.app.github.dev/';
+const API_BASE_URL = 'https://shiny-system-v6j7j46w4g65cpqrj-8000.app.github.dev';
 export function NavBar({ onLogout }: NavBarProps) {
   const navigate = useNavigate();
 
