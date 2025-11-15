@@ -3,6 +3,75 @@ import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../components/PageContainer';
 import { FileText, Clock, Briefcase, BookOpen, Plus, Trash2, GraduationCap, LogOut } from 'lucide-react';
 import { API_BASE } from '../config';
+import { PrimaryButton } from '../components/PrimaryButton';
+
+export function LabAdminPage() {
+  const [labData, setLabData] = useState<any>(null); // (타입은 LabDetail로 정의)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // 1. 랩 관리자 정보 로드
+  useEffect(() => {
+    fetch('http://localhost:8000/api/lab/my-profile/', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setLabData(data);
+        setIsLoading(false);
+      });
+  }, []);
+
+  // [!!!] 2. 동기화 버튼 클릭 핸들러
+  const handleSync = () => {
+    setIsSyncing(true);
+    fetch('http://localhost:8000/api/lab/my-profile/sync-external/', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+         // (CSRF 토큰 설정이 필요할 수 있습니다. 
+         //  우선 세션 인증으로 시도합니다.)
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      setLabData(data); // 동기화된 최신 데이터로 UI 업데이트
+      setIsSyncing(false);
+      alert('외부 데이터 동기화 및 AI 요약이 완료되었습니다.');
+    })
+    .catch(err => {
+      console.error(err);
+      setIsSyncing(false);
+      alert('동기화 중 오류 발생');
+    });
+  };
+
+  if (isLoading) {
+    return <PageContainer><p>Loading admin data...</p></PageContainer>;
+  }
+
+  return (
+    <PageContainer>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">랩 관리자 대시보드</h1>
+        <PrimaryButton onClick={handleSync} disabled={isSyncing}>
+          {isSyncing ? '동기화 중... (1-2분 소요)' : '외부 데이터 동기화'}
+        </PrimaryButton>
+      </div>
+      
+      {/* (TODO: labData로 폼 필드 채우기) */}
+      <div className="bg-white p-8 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold">AI 연구 요약</h3>
+        <p className="text-gray-700 mt-2">
+          {labData?.research_summary_ko || "아직 요약된 정보가 없습니다. 동기화 버튼을 눌러주세요."}
+        </p>
+        
+        <h3 className="text-xl font-semibold mt-6">GitHub 프로젝트</h3>
+        <pre className="text-xs bg-gray-100 p-4 rounded mt-2">
+          {JSON.stringify(labData?.github_projects_json, null, 2)}
+        </pre>
+      </div>
+    </PageContainer>
+  );
+}
 
 const [isLoading, setIsLoading] = useState(true);
 

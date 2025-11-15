@@ -8,6 +8,7 @@ import { LabDetailPage } from './pages/LabDetailPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { AdminPage } from './pages/AdminPage';
+import { StudentProfilePage } from './pages/StudentProfilePage';
 import { API_BASE } from './config';
 
 // Mock lab data
@@ -363,6 +364,19 @@ export default function App() {
                   )
                 }
               />
+
+              <Route
+              path="/student/profile"
+              element={
+                !auth.isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : auth.userType === 'student' ? (
+                  <StudentProfilePage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
