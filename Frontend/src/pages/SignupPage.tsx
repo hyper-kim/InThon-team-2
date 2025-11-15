@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, User, Lock, Mail, CheckCircle2, XCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { GraduationCap, User, Lock, Mail, CheckCircle2, XCircle, AlertCircle, BookOpen, Hash} from 'lucide-react';
 import { API_BASE } from '../config';
 
 type UserType = 'student' | 'admin';
@@ -293,7 +293,7 @@ export function SignupPage() {
               <div>
                 <label className="block text-sm text-[#4a5565] mb-2 ml-1">학번</label>
                 <div className="relative">
-                  <BookOpen className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
                   <input
                     type="intager"
                     value={student_id}
