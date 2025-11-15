@@ -227,8 +227,8 @@ export default function App() {
         <Route 
             path="/signup" 
             element={
-              isLoggedIn ? (
-                <Navigate to={userType === 'admin' ? '/admin' : '/'} replace />
+              auth.isLoggedIn ? (
+                <Navigate to={auth.userType === 'admin' ? '/admin' : '/'} replace />
               ) : (
                 <SignupPage />
               )
