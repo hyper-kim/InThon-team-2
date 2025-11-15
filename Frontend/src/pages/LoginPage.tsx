@@ -11,7 +11,7 @@ interface LoginPageProps {
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [userType, setUserType] = useState<UserType>('student');
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -21,8 +21,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     e.preventDefault();
     
     // Simple validation
-    if (!userId || !password) {
-      setError('ID와 비밀번호를 입력해주세요.');
+    if (!email || !password) {
+      setError('이메일과 비밀번호를 입력해주세요.');
       return;
     }
 
@@ -37,7 +37,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         },
         credentials: 'include', // Include cookies for session
         body: JSON.stringify({
-          username: userId,
+          username: email,
           password: password,
         }),
       });
@@ -52,7 +52,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       const data = await response.json();
       
       // Call the login handler to update app state
-      onLogin(userType, userId);
+      onLogin(userType, email);
       
       // Navigate based on user type
       if (userType === 'student') {
@@ -119,15 +119,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
-          {/* ID Input */}
+          {/* Email Input */}
           <div>
             <div className="relative">
               <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
               <input
-                type="text"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="ID"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@korea.ac.kr"
                 disabled={isLoading}
                 className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
               />
