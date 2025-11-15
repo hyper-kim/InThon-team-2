@@ -34,6 +34,7 @@ urlpatterns = [
 
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('api/student/', include('students.api_urls')),
 ]
 
 # [!!!] 개발 환경에서 Media 파일을 서빙하기 위한 설정 (이 줄을 추가) [!!!]
