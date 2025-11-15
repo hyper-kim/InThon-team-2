@@ -2,7 +2,6 @@
 from django.db import models
 from django.contrib.auth.models import User # [!!!] 장고의 기본 유저 모델 임포트
 from django.utils import timezone
-from student.models import StudentProfile
 
 
 # 1. '연구실 프로필' 모델
@@ -156,7 +155,7 @@ class Application(models.Model):
     )
     # 어떤 학생이 지원했는지 (StudentProfile과 N:1 관계)
     student = models.ForeignKey(
-        StudentProfile, 
+        'student.StudentProfile', 
         on_delete=models.CASCADE,
         related_name="applications"
     )

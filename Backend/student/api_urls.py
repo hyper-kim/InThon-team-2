@@ -11,6 +11,9 @@ urlpatterns = [
     ),
     path('apply/', 
         api_views.StudentApplicationAPI.as_view(),
-        name='api_student_apply')
+        name='api_student_apply'),
+    path('scraps/', api_views.StudentScrapAPI.as_view(), name='api_student_scraps_list'),
+    # DELETE /api/student/scraps/<lab_id>/
+    path('scraps/<int:lab_id>/', api_views.StudentScrapAPI.as_view(), name='api_student_scrap_detail'),
 
 ]
