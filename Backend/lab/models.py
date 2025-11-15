@@ -36,6 +36,30 @@ class LabProfile(models.Model):
         verbose_name="검색 태그", 
         help_text="쉼표(,)로 구분하여 입력 (예: 인공지능,컴퓨터비전,HCI)"
     )
+    scholar_author_id = models.CharField(
+        max_length=50, blank=True, 
+        verbose_name="Google Scholar Author ID",
+        help_text="Google Scholar 프로필 URL의 'user=' 뒤에 있는 ID (예: AAAAAA-BBBB)"
+    )
+    github_username = models.CharField(
+        max_length=100, blank=True, 
+        verbose_name="GitHub Username (또는 Organization)"
+    )
+    
+    # [!!!] 2. LLM/크롤러가 '저장'할 요약 필드
+    research_summary_ko = models.TextField(
+        blank=True, verbose_name="AI 생성 연구 요약 (한글)"
+    )
+    # [!!!] 3. 크롤러가 '저장'할 GitHub 프로젝트 목록
+    github_projects_json = models.JSONField(
+        default=list, blank=True, verbose_name="GitHub 프로젝트 캐시"
+    )
+    
+    # [!!!] 4. 동기화 시간 추적
+    last_external_sync = models.DateTimeField(
+        null=True, blank=True, verbose_name="최종 외부 연동 시간"
+    )
+
     def __str__(self):
         return self.lab_name
 
