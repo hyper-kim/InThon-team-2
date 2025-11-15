@@ -1,5 +1,6 @@
 # Backend/lab/utils.py
 import openai
+import json
 import requests
 import xml.etree.ElementTree as ET # XML 파서
 from django.conf import settings
@@ -120,3 +121,57 @@ def fetch_dbpia_data(professor_name):
     except Exception as e:
         print(f"DBPia API 오류: {e}")
         return []
+
+def analyze_student_application(application_text, job_description):
+    """ 학생 지원서와 공고를 비교하여 JSON으로 요약/분석합니다. """
+    
+    system_prompt = f"""
+    당신은 랩실의 조교(TA)입니다.
+    지원자가 '모집 공고'의 인재상에 얼마나 적합한지 '지원서'를 보고 1차 필터링해야 합니다.
+    두 내용을 비교하여, 지원자의 장점과 단점을 요약하고, 채용 추천 여부를 결정해주세요.
+
+    [요청]
+    1. '지원서'를 3줄로 요약합니다.
+    2. '모집 공고' 대비 지원자의 장점(pros) 2가지를 리스트로 뽑아주세요.
+    3. '모집 공고' 대비 지원자의 단점(cons) 2가지를 리스트로 뽑아주세요.
+    4. 최종 추천 여부(recommendation)를 "추천" 또는 "비추천"으로 결정해주세요.
+
+    [출력 형식]
+    반드시 다음 JSON 형식만 반환해야 합니다:
+    {{
+      "summary": "...",
+      "pros": ["...", "..."],
+      "cons": ["...", "..."],
+      "recommendation": "추천"
+    }}
+    """
+    
+    user_content = f"""
+    [모집 공고 내용]
+    {job_description}
+
+    [학생 지원서 내용]
+    {application_text}
+    """
+    
+    try:
+        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=0.2,
+            response_format={ "type": "json_object" } 
+        )
+        response_content = response.choices[0].message.content
+        return json.loads(response_content)
+        
+    except Exception as e:
+        print(f"OpenAI 지원서 분석 오류: {e}")
+        return {
+            "summary": "AI 분석 중 오류가 발생했습니다.",
+            "pros": [], "cons": [],
+            "recommendation": "오류"
+        }

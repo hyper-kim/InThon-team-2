@@ -9,7 +9,7 @@ urlpatterns = [
         api_views.LabProfileDetailAPI.as_view(), 
         name='api_lab_profile_detail'
     ),
-    
+    path('my-applications/', api_views.LabApplicationListAPI.as_view(), name='api_lab_applications'),
     # /api/lab/public/
     path(
         'public/', 

@@ -1,6 +1,9 @@
 # your_app/models.py
 from django.db import models
 from django.contrib.auth.models import User # [!!!] 장고의 기본 유저 모델 임포트
+from django.utils import timezone
+from student.models import StudentProfile
+
 
 # 1. '연구실 프로필' 모델
 class LabProfile(models.Model):
@@ -141,3 +144,50 @@ class LabAvailability(models.Model):
     def __str__(self):
         # "get_day_display"는 (1) -> '월요일' 처럼 choices의 값을 가져옴
         return f"{self.lab.lab_name} - {self.get_day_display()} {self.start_time} ~ {self.end_time}"
+    
+
+
+class Application(models.Model):
+    # 어떤 공고에 지원했는지 (JobPosting과 N:1 관계)
+    job_posting = models.ForeignKey(
+        JobPosting, 
+        on_delete=models.CASCADE,
+        related_name="applications"
+    )
+    # 어떤 학생이 지원했는지 (StudentProfile과 N:1 관계)
+    student = models.ForeignKey(
+        StudentProfile, 
+        on_delete=models.CASCADE,
+        related_name="applications"
+    )
+    
+    # --- 학생이 작성하는 내용 ---
+    application_text = models.TextField(
+        verbose_name="지원 동기 및 자기소개"
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    # --- AI가 자동으로 채우는 내용 ---
+    class AIStatus(models.TextChoices):
+        PENDING = 'PENDING', '분석 대기중'
+        RECOMMENDED = 'RECOMMENDED', '추천'
+        NOT_RECOMMENDED = 'NOT_RECOMMENDED', '비추천'
+
+    ai_status = models.CharField(
+        max_length=20,
+        choices=AIStatus.choices,
+        default=AIStatus.PENDING
+    )
+    ai_summary = models.TextField(
+        blank=True, verbose_name="AI 요약"
+    )
+    ai_pros = models.JSONField(
+        default=list, blank=True, verbose_name="AI 분석 장점"
+    )
+    ai_cons = models.JSONField(
+        default=list, blank=True, verbose_name="AI 분석 단점"
+    )
+
+    def __str__(self):
+        return f"{self.student.user.username} -> {self.job_posting.title}"
+

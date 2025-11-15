@@ -1,6 +1,6 @@
 # Backend/lab/serializers.py
 from rest_framework import serializers
-from .models import LabProfile, JobPosting, LabAvailability
+from .models import LabProfile, JobPosting, LabAvailability, Application
 
 # (하위 Serializer인 LabAvailabilitySerializer, JobPostingSerializer는
 # 이전 답변과 동일하게 수정 - 'id' 필드 포함, read_only=True)
@@ -74,3 +74,26 @@ class LabProfileSerializer(serializers.ModelSerializer):
                 JobPosting.objects.create(lab=instance, **job_data)
 
         return instance
+    
+
+# [!!!] (신규) 학생이 '생성(POST)'할 때 사용할 Serializer
+class ApplicationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        # 학생은 '공고 ID'와 '지원서 내용'만 보냄
+        fields = ['job_posting', 'application_text'] 
+
+# [!!!] (신규) 랩 관리자에게 '보여줄(GET)' Serializer
+class ApplicationListSerializer(serializers.ModelSerializer):
+    # (중첩 Serializer로 학생의 기본 정보도 함께 보여줌)
+    student_username = serializers.CharField(source='student.user.username', read_only=True)
+    student_major = serializers.CharField(source='student.major', read_only=True)
+
+    class Meta:
+        model = Application
+        # AI가 분석한 모든 필드를 포함
+        fields = [
+            'id', 'student_username', 'student_major', 'submitted_at',
+            'application_text',
+            'ai_status', 'ai_summary', 'ai_pros', 'ai_cons'
+        ]

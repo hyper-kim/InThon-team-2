@@ -3,9 +3,11 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
-from .models import LabProfile
-from .serializers import LabProfileSerializer
+from .models import LabProfile, Application
+from .serializers import LabProfileSerializer, ApplicationCreateSerializer, ApplicationListSerializer
 from django.http import Http404
+
+
 # [!!!] 1. utils.py에서 dbpia 함수 임포트
 from .utils import fetch_scholar_data, fetch_github_data, get_openai_summary, fetch_dbpia_data
 # [!!!] 1. 랩 관리자용 API (기존 코드)
@@ -72,3 +74,23 @@ class LabExternalDataSyncAPI(APIView):
         # 6. 최신 데이터 반환
         serializer = LabProfileSerializer(lab_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+# [!!!] 2. (신규) 랩 관리자용 지원서 목록 API
+class LabApplicationListAPI(generics.ListAPIView):
+    """
+    랩 관리자가 자신의 랩에 온 모든 지원서(AI 요약 포함)를 조회(GET)합니다.
+    URL: /api/lab/my-applications/
+    """
+    serializer_class = ApplicationListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        try:
+            lab_profile = self.request.user.labprofile
+        except LabProfile.DoesNotExist:
+            return Application.objects.none() # 빈 쿼리셋 반환
+        
+        # 자신의 랩 공고에 온 모든 지원서를 필터링
+        return Application.objects.filter(
+            job_posting__lab=lab_profile
+        ).select_related('student__user').order_by('-submitted_at')

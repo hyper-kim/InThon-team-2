@@ -9,4 +9,8 @@ urlpatterns = [
         api_views.StudentProfileAPI.as_view(), 
         name='api_student_profile'
     ),
+    path('apply/', 
+        api_views.StudentApplicationAPI.as_view(),
+        name='api_student_apply')
+
 ]
