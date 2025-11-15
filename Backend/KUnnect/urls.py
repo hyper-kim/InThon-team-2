@@ -32,11 +32,7 @@ urlpatterns = [
     # [!!!] 2. /api/auth/ 경로는 lab.api_urls가 처리
     path('api/auth/', include('accounts.api_urls')),
     
-    # [!!!] 로그인/로그아웃 기능을 위해 추가 (중요)
-    path('accounts/', include('django.contrib.auth.urls')),
 
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
     path('api/student/', include('student.api_urls')),
 ]
 
