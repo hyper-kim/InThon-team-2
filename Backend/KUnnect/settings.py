@@ -160,7 +160,7 @@ CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
 # REST Framework 설정 - SPA 환경에서 CSRF 비활성화
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # SessionAuthentication을 제거하고 기본 Django 세션으로 인증
+        'rest_framework.authentication.SessionAuthentication',  # DRF에서 세션 인증 유지
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # 각 view에서 개별적으로 권한 관리
