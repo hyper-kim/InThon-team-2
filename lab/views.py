@@ -50,6 +50,23 @@ def manage_lab_profile(request):
     }
     return render(request, 'templates/lab_profile_register.html', context)
 
+# 로그인 요청 시 보일 뷰
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
 
-        
-        
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('lab/')  # 로그인 후 이동할 페이지
+        else:
+            return render(request, 'lab/login.html', {'error': '아이디 또는 비밀번호가 잘못되었습니다.'})
+
+    return render(request, 'lab/login.html')
+
+# 로그아웃 요청 시 보일 뷰
+def logout_view(request):
+    logout(request)
+    return redirect('login')
