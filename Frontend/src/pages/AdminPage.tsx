@@ -38,6 +38,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
   const [professorName, setProfessorName] = useState('');
   const [labDescription, setLabDescription] = useState('');
   const [email, setEmail] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   // State for time slots
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
@@ -170,6 +171,39 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                   className="w-full px-3 py-2 bg-[#F3F3F5] border border-[#D1D5DC] rounded-lg text-sm text-[#364153] placeholder:text-[#717182] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
                 />
               </div>
+
+              <div>
+                <label className="block text-[#364153] text-sm font-medium mb-2">연구 분야 카테고리</label>
+                <p className="text-xs text-[#717182] mb-3">해당하는 분야를 모두 선택하세요</p>
+                <div className="flex flex-wrap gap-2">
+                  {['인공지능', '뇌공학', '데이터사이언스', '컴퓨터비전', 'HCI'].map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategories(prev =>
+                          prev.includes(category)
+                            ? prev.filter(c => c !== category)
+                            : [...prev, category]
+                        );
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        selectedCategories.includes(category)
+                          ? 'bg-[#A1121A] text-white shadow-md'
+                          : 'bg-[#F3F3F5] text-[#364153] hover:bg-[#E8E8EA] border border-[#D1D5DC]'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+                {selectedCategories.length > 0 && (
+                  <p className="text-xs text-[#A1121A] mt-2">
+                    선택된 카테고리: {selectedCategories.join(', ')}
+                  </p>
+                )}
+              </div>
+              
             </div>
           </div>
 
