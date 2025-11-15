@@ -11,6 +11,8 @@ export function SignupPage() {
   const [email, setEmail] = useState('');
   const [major, setMajor] = useState('');
   const [student_id, setStudent_id] = useState('');
+  const [labName, setLabName] = useState('');
+  const [professorName, setProfessorName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordValidation, setPasswordValidation] = useState({
@@ -117,8 +119,66 @@ export function SignupPage() {
         setIsLoading(false);
       }
     } else {
-      // Admin signup not yet implemented
-      setError('관리자 회원가입은 준비 중입니다.');
+      // Admin signup: validate fields similarly to student
+      if (!labName.trim()) {
+        setError('연구실 이름(랩 타이틀)을 입력해주세요.');
+        return;
+      }
+      if (!professorName.trim()) {
+        setError('교수님 성함을 입력해주세요.');
+        return;
+      }
+      if (!validatePassword(password)) {
+        setError('비밀번호 형식을 확인해주세요.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+
+      // Call backend API for admin registration
+      setError('');
+      setIsLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE}api/auth/register/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            role: 'lab_admin',
+            lab_name: labName,
+            professor_name: professorName,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (typeof errorData === 'object') {
+            const errorMessages = Object.values(errorData).flat();
+            const errorMessage = Array.isArray(errorMessages) && errorMessages[0]
+              ? errorMessages[0]?.toString()
+              : '관리자 회원가입에 실패했습니다.';
+            setError(errorMessage);
+          } else {
+            setError('관리자 회원가입에 실패했습니다.');
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        // Success - navigate to login
+        navigate('/login');
+      } catch (err) {
+        console.error('Admin signup error:', err);
+        setError('서버 연결에 실패했습니다. 다시 시도해주세요.');
+        setIsLoading(false);
+      }
     }
   };
 
@@ -267,6 +327,38 @@ export function SignupPage() {
                   />
                 </div>
               </div>
+
+              {/* Lab Title Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">연구실 이름</label>
+                <div className="relative">
+                  <BookOpen className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="text"
+                    value={labName}
+                    onChange={(e) => setLabName(e.target.value)}
+                    placeholder="AI & Machine Learning Lab"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              {/* Professor Name Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">교수님 성함</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="text"
+                    value={professorName}
+                    onChange={(e) => setProfessorName(e.target.value)}
+                    placeholder="홍교수"
+                    disabled={isLoading}
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
             </>
           )}
 
@@ -348,38 +440,36 @@ export function SignupPage() {
             )}
           </div>
 
-          {/* Confirm Password Input (Student mode only) */}
-          {userType === 'student' && (
-            <div>
-              <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호 확인</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
-                  placeholder="비밀번호 재입력"
-                  className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed ${
-                    password && confirmPassword && password === confirmPassword
-                      ? 'border-green-500'
-                      : password && confirmPassword
-                      ? 'border-red-500'
-                      : 'border-gray-200'
-                  }`}
-                />
-                {password && confirmPassword && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    {password === confirmPassword ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <AlertCircle className="w-5 h-5 text-red-500" />
-                    )}
-                  </div>
-                )}
-              </div>
+          {/* Confirm Password Input (both student and admin) */}
+          <div>
+            <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호 확인</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isLoading}
+                placeholder="비밀번호 재입력"
+                className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] disabled:opacity-50 disabled:cursor-not-allowed ${
+                  password && confirmPassword && password === confirmPassword
+                    ? 'border-green-500'
+                    : password && confirmPassword
+                    ? 'border-red-500'
+                    : 'border-gray-200'
+                }`}
+              />
+              {password && confirmPassword && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  {password === confirmPassword ? (
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-500" />
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Signup Button */}
           <button
