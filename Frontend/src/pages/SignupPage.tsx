@@ -9,6 +9,7 @@ export function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [major, setMajor] = useState('');
+  const [student_id, setStudent_id] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordValidation, setPasswordValidation] = useState({
@@ -173,7 +174,25 @@ export function SignupPage() {
                   />
                 </div>
               </div>
+          
+            {/* Student_id Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">학번</label>
+                <div className="relative">
+                  <BookOpen className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="intager"
+                    value={student_id}
+                    onChange={(e) => setStudent_id(e.target.value)}
+                    placeholder="2025XXXXXX"
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                  />
+                </div>
+              </div>
             </>
+
+
+
           )}
 
           {/* Admin Mode Fields */}
