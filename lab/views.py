@@ -1,6 +1,7 @@
 
 # Create your views here.
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required # [!!!] 로그인 필수
 from .models import LabProfile
 from .forms import LabProfileForm, JobPostingFormSet, LabAvailabilityFormSet

@@ -21,7 +21,8 @@ JobPostingFormSet = inlineformset_factory(
     can_delete=True  # 삭제 기능 활성화
 )
 
-class LabUserForm(UserCreationForm):
+# 3. 회원가입 시 이용할 유저폼
+class LabUserCreationForm(UserCreationForm):
     email = forms.EmailField(label="이메일")
 
     class Meta:
