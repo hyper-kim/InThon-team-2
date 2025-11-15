@@ -28,6 +28,9 @@ urlpatterns = [
     # [!!!] /lab/ URL은 your_app.urls에서 처리하도록 위임
     # [!!!] 1. /api/ 주소는 api_urls.py가 처리
     path('api/lab/', include('lab.api_urls')),
+
+    # [!!!] 2. /api/auth/ 경로는 lab.api_urls가 처리
+    path('api/auth/', include('accounts.api_urls')),
     
     # [!!!] 로그인/로그아웃 기능을 위해 추가 (중요)
     path('accounts/', include('django.contrib.auth.urls')),
