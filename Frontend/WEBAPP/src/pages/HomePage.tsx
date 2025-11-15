@@ -16,7 +16,7 @@ export function HomePage() {
   useEffect(() => {
     const fetchLabs = async () => {
       try {
-        const response = await fetch('https://mysql-production-24c1.up.railway.app/api/lab/public/');
+        const response = await fetch('https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev/api/lab/public/');
         if (!response.ok) {
           throw new Error('Failed to fetch labs');
         }

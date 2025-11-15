@@ -24,7 +24,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
 
     try {
-      const response = await fetch('https://mysql-production-24c1.up.railway.app/api/auth/login/', {
+      const response = await fetch('https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev/api/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,6 +33,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           username: userId,
           password: password,
         }),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -40,6 +41,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // --- [수정된 로직] ---
       // 1. API 응답 성공 여부를 확인
       if (response.ok && data.success) {
+        const role = data.role === 'lab_admin' ? 'admin' : 'student';
         // 2. 로그인 성공
         onLogin(userType, userId);
         
