@@ -1,10 +1,13 @@
 # lab/api_views.py
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.utils import timezone
 from .models import LabProfile
 from .serializers import LabProfileSerializer
 from django.http import Http404
+# [!!!] 1. utils.py에서 dbpia 함수 임포트
 from .utils import fetch_scholar_data, fetch_github_data, get_openai_summary, fetch_dbpia_data
-
 # [!!!] 1. 랩 관리자용 API (기존 코드)
 class LabProfileDetailAPI(generics.RetrieveUpdateAPIView):
     serializer_class = LabProfileSerializer
