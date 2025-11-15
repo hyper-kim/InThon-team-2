@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, User, Lock, Mail, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { GraduationCap, User, Lock, Mail, CheckCircle2, XCircle, AlertCircle, BookOpen } from 'lucide-react';
 
 type UserType = 'student' | 'admin';
-
-// Mock existing users for ID duplicate check
-const existingUserIds = ['student1', 'admin1', 'test', 'demo'];
 
 export function SignupPage() {
   const [userType, setUserType] = useState<UserType>('student');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [userId, setUserId] = useState('');
+  const [major, setMajor] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isIdChecked, setIsIdChecked] = useState(false);
-  const [isIdAvailable, setIsIdAvailable] = useState<boolean | null>(null);
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     hasLetter: false,
@@ -24,37 +19,13 @@ export function SignupPage() {
   });
   const navigate = useNavigate();
 
-  // ID 중복 확인
-  const handleCheckId = () => {
-    if (!userId.trim()) {
-      alert('ID를 입력해주세요.');
-      return;
-    }
-
-    if (userId.length < 4) {
-      alert('ID는 4자 이상이어야 합니다.');
-      return;
-    }
-
-    // Check if ID is already taken
-    const isDuplicate = existingUserIds.includes(userId.toLowerCase());
-    setIsIdAvailable(!isDuplicate);
-    setIsIdChecked(true);
-
-    if (isDuplicate) {
-      alert('이미 사용 중인 ID입니다.');
-    } else {
-      alert('사용 가능한 ID입니다!');
-    }
-  };
-
   // Password 형식 검증
   const validatePassword = (pwd: string) => {
     const validation = {
       length: pwd.length >= 8,
       hasLetter: /[a-zA-Z]/.test(pwd),
       hasNumber: /[0-9]/.test(pwd),
-      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(pwd)
+      hasSpecial: /[!@#$%^&*(),.?\":{}|<>]/.test(pwd)
     };
     setPasswordValidation(validation);
     return Object.values(validation).every(v => v);
@@ -66,44 +37,45 @@ export function SignupPage() {
     validatePassword(pwd);
   };
 
-  const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserId(e.target.value);
-    // Reset ID check status when user modifies the ID
-    setIsIdChecked(false);
-    setIsIdAvailable(null);
-  };
-
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!name.trim()) {
-      alert('이름을 입력해주세요.');
-      return;
-    }
-
+    // Common validation - Email
     if (!email.trim()) {
       alert('이메일을 입력해주세요.');
       return;
     }
 
-    if (!isIdChecked || !isIdAvailable) {
-      alert('ID 중복 확인을 해주세요.');
-      return;
-    }
-
+    // Password validation
     if (!validatePassword(password)) {
       alert('비밀번호 형식을 확인해주세요.');
       return;
     }
 
-    if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
+    // Student-specific validation
+    if (userType === 'student') {
+      if (!name.trim()) {
+        alert('이름을 입력해주세요.');
+        return;
+      }
+
+      if (!major.trim()) {
+        alert('전공을 입력해주세요.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+
+      // Success for student
+      alert(`회원가입 완료!\n환영합니다, ${name}님!`);
+    } else {
+      // Success for admin
+      alert('관리자 회원가입 완료!\n환영합니다!');
     }
 
-    // Success
-    alert(`회원가입 완료!\n환영합니다, ${name}님!`);
     navigate('/login');
   };
 
@@ -154,81 +126,77 @@ export function SignupPage() {
 
         {/* Signup Form */}
         <form onSubmit={handleSignup} className="space-y-4">
-          {/* Name Input */}
-          <div>
-            <label className="block text-sm text-[#4a5565] mb-2 ml-1">이름</label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="홍길동"
-                className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
-              />
-            </div>
-          </div>
-
-          {/* Email Input */}
-          <div>
-            <label className="block text-sm text-[#4a5565] mb-2 ml-1">이메일</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@example.com"
-                className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
-              />
-            </div>
-          </div>
-
-          {/* ID Input with Duplicate Check */}
-          <div>
-            <label className="block text-sm text-[#4a5565] mb-2 ml-1">ID</label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
-                <input
-                  type="text"
-                  value={userId}
-                  onChange={handleUserIdChange}
-                  placeholder="4자 이상"
-                  className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] ${
-                    isIdChecked
-                      ? isIdAvailable
-                        ? 'border-green-500'
-                        : 'border-red-500'
-                      : 'border-gray-200'
-                  }`}
-                />
-                {isIdChecked && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    {isIdAvailable ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
-                    )}
-                  </div>
-                )}
+          {/* Student Mode Fields */}
+          {userType === 'student' && (
+            <>
+              {/* Name Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">이름</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="홍길동"
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                  />
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={handleCheckId}
-                className="px-4 h-12 bg-gray-200 hover:bg-gray-300 text-[#364153] rounded-xl transition-colors whitespace-nowrap"
-              >
-                중복확인
-              </button>
-            </div>
-            {isIdChecked && (
-              <p className={`text-xs mt-1 ml-1 ${isIdAvailable ? 'text-green-600' : 'text-red-600'}`}>
-                {isIdAvailable ? '✓ 사용 가능한 ID입니다' : '✗ 이미 사용 중인 ID입니다'}
-              </p>
-            )}
-          </div>
 
-          {/* Password Input with Validation */}
+              {/* Email Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">이메일</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="example@korea.ac.kr"
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                  />
+                </div>
+              </div>
+
+              {/* Major Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">전공</label>
+                <div className="relative">
+                  <BookOpen className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="text"
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                    placeholder="컴퓨터학과"
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Admin Mode Fields */}
+          {userType === 'admin' && (
+            <>
+              {/* Email Input */}
+              <div>
+                <label className="block text-sm text-[#4a5565] mb-2 ml-1">이메일</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@korea.ac.kr"
+                    className="w-full h-12 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF]"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Password Input with Validation (Both modes) */}
           <div>
             <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호</label>
             <div className="relative">
@@ -305,35 +273,37 @@ export function SignupPage() {
             )}
           </div>
 
-          {/* Confirm Password Input */}
-          <div>
-            <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호 확인</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="비밀번호 재입력"
-                className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] ${
-                  password && confirmPassword && password === confirmPassword
-                    ? 'border-green-500'
-                    : password && confirmPassword
-                    ? 'border-red-500'
-                    : 'border-gray-200'
-                }`}
-              />
-              {password && confirmPassword && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  {password === confirmPassword ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-red-500" />
-                  )}
-                </div>
-              )}
+          {/* Confirm Password Input (Student mode only) */}
+          {userType === 'student' && (
+            <div>
+              <label className="block text-sm text-[#4a5565] mb-2 ml-1">비밀번호 확인</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#99A1AF]" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="비밀번호 재입력"
+                  className={`w-full h-12 pl-12 pr-10 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-[#364153] placeholder:text-[#99A1AF] ${
+                    password && confirmPassword && password === confirmPassword
+                      ? 'border-green-500'
+                      : password && confirmPassword
+                      ? 'border-red-500'
+                      : 'border-gray-200'
+                  }`}
+                />
+                {password && confirmPassword && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    {password === confirmPassword ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-500" />
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Signup Button */}
           <button
