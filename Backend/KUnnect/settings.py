@@ -176,6 +176,7 @@ CSRF_ENABLED = False
 USE_X_FORWARDED_HOST = True
 
 SESSION_COOKIE_SAMESITE = 'None'
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SECURE = True  # SAMESITE='None'을 사용하려면 쿠키가 https를 통해서만 전송되어야 함
 
 # CSRF 쿠키에도 동일하게 적용합니다.
