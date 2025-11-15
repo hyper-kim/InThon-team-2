@@ -156,8 +156,22 @@ CORS_PREFLIGHT_EXIT = True
 # (나중에 React를 'build'해서 Django가 직접 서빙할 때는 이 설정이 필요 없지만,
 # 지금처럼 React 개발 서버를 따로 돌릴 때는 필수입니다.)
 CORS_ALLOW_CREDENTIALS = True # 쿠키/세션 기반 인증을 위해
+
+# REST Framework 설정 - SPA 환경에서 CSRF 비활성화
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # SessionAuthentication을 제거하고 기본 Django 세션으로 인증
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # 각 view에서 개별적으로 권한 관리
+    ],
+}
+
 # Codespaces와 같은 리버스 프록시 환경에서 https 리디렉션 오류를 방지합니다.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CSRF 보호 비활성화 - SPA 환경이므로 필요 없음
+CSRF_ENABLED = False
 
 USE_X_FORWARDED_HOST = True
 
