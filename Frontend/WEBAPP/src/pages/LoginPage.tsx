@@ -155,6 +155,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             : '관리자 페이지에 접속합니다'
           }
         </p>
+
+        {/* Signup Link */}
+        <div className="mt-4 text-center">
+          <p className="text-sm text-[#4a5565]">
+            아직 계정이 없으신가요?{' '}
+            <button
+              onClick={() => navigate('/signup')}
+              className="text-[#A1121A] hover:underline font-medium"
+            >
+              회원가입
+            </button>
+          </p>
+        </div>
+        
       </div>
     </div>
   );

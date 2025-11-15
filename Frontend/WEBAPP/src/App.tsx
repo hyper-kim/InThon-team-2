@@ -6,6 +6,7 @@ import { NavBar } from './components/NavBar';
 import { HomePage } from './pages/HomePage';
 import { LabDetailPage } from './pages/LabDetailPage';
 import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
 import { AdminPage } from './pages/AdminPage';
 import { ChatPanel } from './components/ChatPanel';
 
@@ -222,6 +223,17 @@ export default function App() {
             )
           }
         />
+
+        <Route 
+            path="/signup" 
+            element={
+              isLoggedIn ? (
+                <Navigate to={userType === 'admin' ? '/admin' : '/'} replace />
+              ) : (
+                <SignupPage />
+              )
+            } 
+          />
 
         <Route
           path="/"
