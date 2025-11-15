@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Chatbot Interface</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f0f2f5;
+            --text-color: #333;
+            --border-color: #ddd;
+            --bot-message-bg: #e9ecef;
+            --user-message-bg: #007bff;
+            --user-message-text: white;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+        nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        nav button.active {
+            border-bottom: 3px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+        }
+        .content {
+            padding: 20px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .file-input {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        button.submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button.submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        /* Chat Styles */
+        #chat-window {
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        .user-message {
+            background-color: var(--user-message-bg);
+            color: var(--user-message-text);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .bot-message {
+            background-color: var(--bot-message-bg);
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .sources {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+        .source {
+            font-size: 12px;
+            background: #fafafa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border-left: 3px solid var(--primary-color);
+        }
+        .source-text {
+            color: #666;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #chat-mode-selector {
+            margin-bottom: 15px;
+        }
+        #job-fields {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Korea University Lab Chatbot</h1>
+    </header>
+    <nav>
+        <button id="nav-admin" class="active" onclick="showPage('admin')">Admin: Create Lab</button>
+        <button id="nav-chat" onclick="showPage('chat')">Chat Interface</button>
+    </nav>
+    <div class="content">
+        <!-- Admin Page -->
+        <div id="page-admin" class="page active">
+            <h2>Create or Update a Lab Profile</h2>
+            <p>Upload a lab introduction and research papers to create an indexed knowledge base.</p>
+            <form id="create-lab-form">
+                <div class="form-group">
+                    <label for="lab_id">Lab ID</label>
+                    <input type="text" id="lab_id" name="lab_id" placeholder="e.g., dsb-lab, hci-lab" required>
+                </div>
+                <div class="form-group">
+                    <label for="lab_intro">Lab Introduction</label>
+                    <textarea id="lab_intro" name="lab_intro" placeholder="Describe the lab, its research focus, professor, etc." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pdf_files">Research Papers (PDFs)</label>
+                    <input type="file" id="pdf_files" name="pdf_files" class="file-input" multiple accept=".pdf" required>
+                </div>
+                <button type="submit" class="submit-btn" id="create-btn">Create Embeddings</button>
+                <div id="admin-status" class="status-message"></div>
+            </form>
+        </div>
+
+        <!-- Chat Page -->
+        <div id="page-chat" class="page">
+            <div class="form-group">
+                <label for="chat_lab_id">Lab ID to Chat With</label>
+                <input type="text" id="chat_lab_id" placeholder="Enter the Lab ID you created (e.g., dsb-lab)">
+            </div>
+            
+            <div id="chat-mode-selector" class="form-group">
+                <label>Chat Mode:</label>
+                <input type="radio" id="mode-general" name="chat-mode" value="general" checked>
+                <label for="mode-general" style="display: inline; font-weight: normal;">General Q&A</label>
+                <input type="radio" id="mode-job" name="chat-mode" value="job">
+                <label for="mode-job" style="display: inline; font-weight: normal;">Job Matching Q&A</label>
+            </div>
+
+            <div id="job-fields">
+                <div class="form-group">
+                    <label for="job_info">Job Information</label>
+                    <textarea id="job_info" placeholder="Describe the job opening or requirements."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="user_info">User Information</label>
+                    <textarea id="user_info" placeholder="Describe your (or the candidate's) skills, experience, and interests."></textarea>
+                </div>
+            </div>
+
+            <div id="chat-window">
+                <div class="message bot-message">Hello! Select a Lab ID and ask me a question.</div>
+            </div>
+
+            <form id="chat-form">
+                <div class="form-group">
+                    <textarea id="question" placeholder="Type your question here..." style="min-height: 40px;" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn" id="send-btn">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = "https://jubilant-goggles-95p9r5456j37449-8000.app.github.dev";
+
+    // --- Page Navigation ---
+    function showPage(pageName) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(`page-${pageName}`).classList.add('active');
+        document.getElementById(`nav-${pageName}`).classList.add('active');
+    }
+
+    // --- Admin Page Logic ---
+    const adminForm = document.getElementById('create-lab-form');
+    const adminStatus = document.getElementById('admin-status');
+    const createBtn = document.getElementById('create-btn');
+
+    adminForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('lab_id', document.getElementById('lab_id').value);
+        formData.append('lab_intro', document.getElementById('lab_intro').value);
+
+        const pdfFiles = document.getElementById('pdf_files').files;
+        for (const file of pdfFiles) {
+            formData.append('pdf_files', file);
+        }
+
+        adminStatus.style.display = 'block';
+        adminStatus.className = 'status-message';
+        adminStatus.textContent = 'Processing... This may take a few moments.';
+        createBtn.disabled = true;
+        createBtn.textContent = 'Creating...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/create_embedding`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                adminStatus.className = 'status-message success';
+                adminStatus.innerHTML = `Success! Lab '${result.lab_id}' created with ${result.chunks} text chunks. You can now chat with it.`;
+                adminForm.reset();
+            } else {
+                throw new Error(result.detail || 'An unknown error occurred.');
+            }
+        } catch (error) {
+            adminStatus.className = 'status-message error';
+            adminStatus.textContent = `Error: ${error.message}`;
+        } finally {
+            createBtn.disabled = false;
+            createBtn.textContent = 'Create Embeddings';
+        }
+    });
+
+    // --- Chat Page Logic ---
+    const chatForm = document.getElementById('chat-form');
+    const chatWindow = document.getElementById('chat-window');
+    const questionInput = document.getElementById('question');
+    const sendBtn = document.getElementById('send-btn');
+    const jobFields = document.getElementById('job-fields');
+    
+    document.querySelectorAll('input[name="chat-mode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            jobFields.style.display = e.target.value === 'job' ? 'block' : 'none';
+        });
+    });
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const question = questionInput.value.trim();
+        const labId = document.getElementById('chat_lab_id').value.trim();
+        const chatMode = document.querySelector('input[name="chat-mode"]:checked').value;
+
+        if (!question || !labId) {
+            alert('Please provide a Lab ID and a question.');
+            return;
+        }
+
+        appendMessage(question, 'user');
+        questionInput.value = '';
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Thinking...';
+        appendMessage('...', 'loading');
+
+        try {
+            let endpoint = '';
+            const body = {
+                lab_id: labId,
+                question: question
+            };
+
+            if (chatMode === 'general') {
+                endpoint = '/chat_general';
+            } else {
+                endpoint = '/chat_job';
+                body.job_info = document.getElementById('job_info').value;
+                body.user_info = document.getElementById('user_info').value;
+            }
+
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const result = await response.json();
+            document.querySelector('.loading')?.remove();
+
+            if (response.ok) {
+                appendMessage(result.answer, 'bot', result.sources);
+            } else {
+                throw new Error(result.detail || 'Failed to get a response from the server.');
+            }
+        } catch (error) {
+            document.querySelector('.loading')?.remove();
+            appendMessage(`Error: ${error.message}`, 'bot');
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send';
+        }
+    });
+
+    function appendMessage(text, type, sources = []) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+
+        if (type === 'user') {
+            messageDiv.classList.add('user-message');
+            messageDiv.textContent = text;
+        } else if (type === 'bot') {
+            messageDiv.classList.add('bot-message');
+            messageDiv.textContent = text;
+            if (sources.length > 0) {
+                const sourcesDiv = document.createElement('div');
+                sourcesDiv.className = 'sources';
+                
+                const sourcesHeader = document.createElement('strong');
+                sourcesHeader.textContent = 'Sources:';
+                sourcesDiv.appendChild(sourcesHeader);
+
+                sources.forEach(source => {
+                    const sourceDiv = document.createElement('div');
+                    sourceDiv.className = 'source';
+                    const sourceInfo = `${source.source} (Page ${source.page})`;
+                    const sourceText = source.text;
+                    sourceDiv.innerHTML = `<strong>${sourceInfo}</strong><div class="source-text">"${sourceText}"</div>`;
+                    sourcesDiv.appendChild(sourceDiv);
+                });
+                messageDiv.appendChild(sourcesDiv);
+            }
+        } else if (type === 'loading') {
+            messageDiv.classList.add('bot-message', 'loading');
+            messageDiv.textContent = '...';
+        }
+        
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
