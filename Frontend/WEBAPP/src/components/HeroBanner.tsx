@@ -8,7 +8,7 @@ export function HeroBanner() {
       {/* Decorative profile images with triangular accents */}
       <div className="absolute left-[10%] top-20 w-20 h-20 rounded-full bg-white shadow-lg overflow-hidden">
         <ImageWithFallback 
-          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400"
+          src="https://i.im.ge/2025/11/15/nGJgmL.Screenshot-2025-11-15-at-9-02-05PM.png"
           alt="Student"
           className="w-full h-full object-cover"
         />
@@ -17,7 +17,7 @@ export function HeroBanner() {
       
       <div className="absolute right-[12%] top-32 w-20 h-20 rounded-full bg-white shadow-lg overflow-hidden">
         <ImageWithFallback 
-          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400"
+          src="https://i.im.ge/2025/11/15/nGJcOc.Screenshot-2025-11-15-at-8-55-35PM.png"
           alt="Student"
           className="w-full h-full object-cover"
         />
