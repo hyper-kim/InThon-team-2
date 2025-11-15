@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../components/PageContainer';
 import { FilterBar } from '../components/FilterBar';
 import { LabCard } from '../components/LabCard';

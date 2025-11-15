@@ -14,24 +14,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // 'async' 키워드 확인
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple validation
     if (!userId || !password) {
       alert('ID와 비밀번호를 입력해주세요.');
       return;
     }
 
     try {
-      // 2. Django 백엔드 API 호출 (개발 환경 주소)
       const response = await fetch('http://localhost:8000/api/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Django의 CSRF 토큰이 필요할 수 있으나, 
-          // DRF는 세션 인증 시 CSRF를 유연하게 처리합니다.
-          // 만약 CSRF 오류가 발생하면 Django 설정이나 요청 헤더 수정이 필요합니다.
         },
         body: JSON.stringify({
           username: userId,
@@ -41,21 +37,27 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
       const data = await response.json();
 
-      // 3. 백엔드 응답에 따라 처리
+      // --- [수정된 로직] ---
+      // 1. API 응답 성공 여부를 확인
       if (response.ok && data.success) {
-        // 4. 로그인 성공 시 App.tsx의 상태 변경
+        // 2. 로그인 성공
         onLogin(userType, userId);
-    
-    // Navigate based on user type
-    if (userType === 'student') {
-      navigate('/');
-    } else {
-      navigate('/admin');
-    } else {
-        // 로그인 실패
+        
+        // 3. (성공한 경우에만) 유저 타입에 따라 페이지 이동
+        if (userType === 'student') {
+          navigate('/');
+        } else {
+          navigate('/admin');
+        }
+      
+      } else {
+        // 4. API 응답 실패 (잘못된 ID/PW 등)
         alert(data.error || '로그인에 실패했습니다.');
       }
+      // --- [여기까지 수정] ---
+
     } catch (error) {
+      // 5. 네트워크 오류 등
       console.error('Login API error:', error);
       alert('로그인 중 오류가 발생했습니다.');
     }

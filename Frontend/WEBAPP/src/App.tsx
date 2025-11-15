@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// Frontend/WEBAPP/src/App.tsx
+
+import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { HomePage } from './pages/HomePage';
@@ -127,49 +129,94 @@ export const labsData = [
   }
 ];
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState<'student' | 'admin' | null>(null);
-  const [userId, setUserId] = useState<string>('');
+// 인증 상태를 객체로 관리
+interface AuthState {
+  isLoggedIn: boolean;
+  userType: 'student' | 'admin' | null;
+  userId: string;
+}
 
-  // Check if user is already logged in (from localStorage)
-  useEffect(() => {
+/**
+ * useState의 '지연 초기화'에 사용될 함수입니다.
+ * 이 함수는 앱이 처음 로드될 때 *단 한 번만* 실행됩니다.
+ * localStorage 접근 시 발생할 수 있는 오류를 try...catch로 처리합니다.
+ * @returns {AuthState} localStorage에서 읽어온 초기 인증 상태
+ */
+const getInitialAuthState = (): AuthState => {
+  // --- [수정된 부분] ---
+  try {
     const savedUserType = localStorage.getItem('userType');
     const savedUserId = localStorage.getItem('userId');
-    if (savedUserType && savedUserId) {
-      setIsLoggedIn(true);
-      setUserType(savedUserType as 'student' | 'admin');
-      setUserId(savedUserId);
-    }
-  }, []);
 
+    if (savedUserType && savedUserId) {
+      return {
+        isLoggedIn: true,
+        userType: savedUserType as 'student' | 'admin',
+        userId: savedUserId,
+      };
+    }
+  } catch (error) {
+    console.error("localStorage 접근 실패:", error);
+    // localStorage 접근에 실패하면(예: 브라우저 설정)
+    // 앱이 멈추지 않고 로그아웃 상태로 강제 진행합니다.
+  }
+  // --- [수정 끝] ---
+  
+  // 기본값 (로그아웃 상태)
+  return {
+    isLoggedIn: false,
+    userType: null,
+    userId: '',
+  };
+};
+
+export default function App() {
+  // useState에 값 대신 '함수'를 전달하여 지연 초기화를 실행합니다.
+  const [auth, setAuth] = useState(getInitialAuthState);
+
+  // 로그인 핸들러: auth 상태를 업데이트하고 localStorage에 씁니다.
   const handleLogin = (type: 'student' | 'admin', id: string) => {
-    setIsLoggedIn(true);
-    setUserType(type);
-    setUserId(id);
-    // Save to localStorage
-    localStorage.setItem('userType', type);
-    localStorage.setItem('userId', id);
+    const newState: AuthState = {
+      isLoggedIn: true,
+      userType: type,
+      userId: id,
+    };
+    setAuth(newState);
+    try {
+      localStorage.setItem('userType', type);
+      localStorage.setItem('userId', id);
+    } catch (error) {
+      console.error("localStorage 쓰기 실패:", error);
+    }
   };
 
+  // 로그아웃 핸들러: auth 상태를 초기화하고 localStorage에서 지웁니다.
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserType(null);
-    setUserId('');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('userId');
+    const newState: AuthState = {
+      isLoggedIn: false,
+      userType: null,
+      userId: '',
+    };
+    setAuth(newState);
+    try {
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userId');
+    } catch (error) {
+      console.error("localStorage 삭제 실패:", error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#FBFBF9]">
-      {isLoggedIn && userType === 'student' && <NavBar onLogout={handleLogout} />}
+      {/* 렌더링 로직은 이제 'auth' 객체를 사용합니다. */}
+      {auth.isLoggedIn && auth.userType === 'student' && <NavBar onLogout={handleLogout} />}
 
       <Routes>
         <Route
           path="/login"
           element={
-            isLoggedIn ? (
-              <Navigate to={userType === 'admin' ? '/admin' : '/'} replace />
+            auth.isLoggedIn ? (
+              <Navigate to={auth.userType === 'admin' ? '/admin' : '/'} replace />
             ) : (
               <LoginPage onLogin={handleLogin} />
             )
@@ -179,9 +226,9 @@ export default function App() {
         <Route
           path="/"
           element={
-            !isLoggedIn ? (
+            !auth.isLoggedIn ? (
               <Navigate to="/login" replace />
-            ) : userType === 'admin' ? (
+            ) : auth.userType === 'admin' ? (
               <Navigate to="/admin" replace />
             ) : (
               <HomePage />
@@ -192,9 +239,9 @@ export default function App() {
         <Route
           path="/lab/:id"
           element={
-            !isLoggedIn ? (
+            !auth.isLoggedIn ? (
               <Navigate to="/login" replace />
-            ) : userType === 'student' ? (
+            ) : auth.userType === 'student' ? (
               <LabDetailPage />
             ) : (
               <Navigate to="/admin" replace />
@@ -205,9 +252,9 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            !isLoggedIn ? (
+            !auth.isLoggedIn ? (
               <Navigate to="/login" replace />
-            ) : userType === 'admin' ? (
+            ) : auth.userType === 'admin' ? (
               <AdminPage onLogout={handleLogout} />
             ) : (
               <Navigate to="/" replace />
@@ -215,11 +262,11 @@ export default function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to={auth.isLoggedIn ? "/" : "/login"} replace />} />
       </Routes>
 
-      {/* AI Assistant Panel - Only visible for students */}
-      {isLoggedIn && userType === 'student' && <ChatPanel />}
+      {/* AI Assistant Panel */}
+      {auth.isLoggedIn && auth.userType === 'student' && <ChatPanel />}
     </div>
   );
 }
