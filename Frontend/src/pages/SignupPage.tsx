@@ -67,7 +67,10 @@ export function SignupPage() {
         setError('전공을 입력해주세요.');
         return;
       }
-
+      if (!student_id.trim()) {
+        setError('학번을 입력해주세요.');
+        return;
+      }
       if (password !== confirmPassword) {
         setError('비밀번호가 일치하지 않습니다.');
         return;
