@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CHATBOT_API_BASE } from '../config';
 import { Send, MessageCircle, X, Minimize2 } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -9,31 +10,45 @@ const initialMessages = [
   { id: 3, text: 'Great! I recommend checking out the AI & Machine Learning Lab and the Computer Vision Research Lab. Would you like more details about either of these?', isUser: false }
 ];
 
-export function ChatPanel() {
+type ChatPanelProps = { labId?: string };
+
+export function ChatPanel({ labId = '' }: ChatPanelProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
-        text: inputValue,
-        isUser: true
-      };
-      setMessages([...messages, newMessage]);
-      setInputValue('');
-      
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse = {
-          id: messages.length + 2,
-          text: 'I\'m analyzing your request. Let me help you find the best labs for your interests.',
-          isUser: false
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage = { id: Date.now(), text: inputValue, isUser: true };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      const base = CHATBOT_API_BASE.replace(/\/$/, '');
+      const resp = await fetch(`${base}/chat_general`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lab_id: labId || '', question: userMessage.text })
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error(errText || 'Network response was not ok');
+      }
+
+      const data = await resp.json();
+      const aiText = data.answer || '죄송합니다. 응답을 받지 못했습니다.';
+      const aiMessage = { id: Date.now() + 1, text: aiText, isUser: false };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      console.error('Chat API error:', err);
+      setMessages(prev => [...prev, { id: Date.now() + 2, text: '오류가 발생했습니다. 다시 시도해 주세요.', isUser: false }]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
