@@ -23,14 +23,41 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
 
-    // Call the login handler
-    onLogin(userType, userId);
+    try {
+      // 2. Django 백엔드 API 호출 (개발 환경 주소)
+      const response = await fetch('http://localhost:8000/api/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Django의 CSRF 토큰이 필요할 수 있으나, 
+          // DRF는 세션 인증 시 CSRF를 유연하게 처리합니다.
+          // 만약 CSRF 오류가 발생하면 Django 설정이나 요청 헤더 수정이 필요합니다.
+        },
+        body: JSON.stringify({
+          username: userId,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      // 3. 백엔드 응답에 따라 처리
+      if (response.ok && data.success) {
+        // 4. 로그인 성공 시 App.tsx의 상태 변경
+        onLogin(userType, userId);
     
     // Navigate based on user type
     if (userType === 'student') {
       navigate('/');
     } else {
       navigate('/admin');
+    } else {
+        // 로그인 실패
+        alert(data.error || '로그인에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Login API error:', error);
+      alert('로그인 중 오류가 발생했습니다.');
     }
   };
 
