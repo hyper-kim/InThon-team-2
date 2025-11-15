@@ -276,9 +276,6 @@ export default function App() {
 
         <Route path="*" element={<Navigate to={auth.isLoggedIn ? "/" : "/login"} replace />} />
       </Routes>
-
-      {/* AI Assistant Panel */}
-      {auth.isLoggedIn && auth.userType === 'student' && <ChatPanel />}
     </div>
   );
 }

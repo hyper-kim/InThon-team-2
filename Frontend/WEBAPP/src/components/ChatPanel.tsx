@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageCircle, X, Minimize2 } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -9,35 +9,82 @@ const initialMessages = [
   { id: 3, text: '자기소개서와 관심 분야를 기반으로 랩실을 추천해드리겠습니다.', isUser: false }
 ];
 
-export function ChatPanel() {
+type ChatPanelProps = { labId?: string };
+
+export function ChatPanel({ labId = '' }: ChatPanelProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
-        text: inputValue,
-        isUser: true
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const API_BASE = 'https://jubilant-goggles-95p9r5456j37449-8000.app.github.dev/';
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage = {
+      id: Date.now(),
+      text: inputValue,
+      isUser: true
+    };
+
+    // Optimistically add user's message
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      if (!labId) console.warn('ChatPanel: no labId provided; sending empty lab_id');
+      // Adjust endpoint/path/payload to match your backend API
+      const resp = await fetch(`${API_BASE}chat_general`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // ChatGeneralRequest: { lab_id: str, question: str }
+        body: JSON.stringify({
+          lab_id: labId,
+          question: userMessage.text
+        })
+      });
+
+      if (!resp.ok) {
+        const errorText = await resp.text();
+        throw new Error(errorText || 'Network response was not ok');
+      }
+
+      const data = await resp.json();
+      // API returns { "answer": string }
+      const aiText = data.answer || '죄송합니다. 응답을 받지 못했습니다.';
+
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: aiText,
+        isUser: false
       };
-      setMessages([...messages, newMessage]);
-      setInputValue('');
-      
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse = {
-          id: messages.length + 2,
-          text: 'I\'m analyzing your request. Let me help you find the best labs for your interests.',
-          isUser: false
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      console.error('Chat API error:', err);
+      const errorMessage = {
+        id: Date.now() + 2,
+        text: '오류가 발생했습니다. 다시 시도해 주세요.',
+        isUser: false
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -99,6 +146,7 @@ export function ChatPanel() {
                 {messages.map(msg => (
                   <ChatMessage key={msg.id} message={msg.text} isUser={msg.isUser} />
                 ))}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input */}
@@ -108,13 +156,14 @@ export function ChatPanel() {
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyDown}
                     placeholder="Type your question..."
                     className="flex-1 px-4 py-2 border border-[#D1D5DC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent text-sm placeholder:text-[rgba(10,10,10,0.5)]"
                   />
                   <button
                     onClick={handleSend}
-                    className="w-10 h-10 bg-[#A1121A] text-white rounded-lg flex items-center justify-center hover:bg-[#8A0F16] transition-colors"
+                    disabled={isLoading}
+                    className="w-10 h-10 bg-[#A1121A] text-white rounded-lg flex items-center justify-center hover:bg-[#8A0F16] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                   </button>

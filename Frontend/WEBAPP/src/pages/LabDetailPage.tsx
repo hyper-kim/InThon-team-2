@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, Calendar, FileText, Users, Clock } from 'lucide-react'
 import { PageContainer } from '../components/PageContainer';
 import { TagChip } from '../components/TagChip';
 import { labsData } from '../App';
+import { ChatPanel } from '../components/ChatPanel';
 
 export function LabDetailPage() {
   const { id } = useParams();
@@ -149,6 +150,8 @@ export function LabDetailPage() {
           </a>
         </div>
       </PageContainer>
+
+      <ChatPanel labId={ id } />
     </div>
   );
 }
