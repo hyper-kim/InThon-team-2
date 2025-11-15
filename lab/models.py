@@ -1,16 +1,23 @@
+# your_app/models.py
 from django.db import models
+from django.contrib.auth.models import User # [!!!] 장고의 기본 유저 모델 임포트
 
-# 1. '연구실 프로필' 모델 (The "One")
-#    (기존 LabInfo에서 이름 변경 및 open_position 필드 제거)
+# 1. '연구실 프로필' 모델
 class LabProfile(models.Model):
+    # [!!!] 이 프로필의 '주인'이 누구인지 연결 (핵심!)
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE,
+        verbose_name="랩 관리자 계정"
+    )
+    
     lab_name = models.CharField(
         max_length=100, 
         verbose_name="연구실 이름"
     )
     schedule_info = models.TextField(
         blank=True, 
-        verbose_name="면담 가능 시간",
-        help_text="예: 매주 금요일 오후 (커피챗 환영)"
+        verbose_name="면담 가능 시간"
     )
 
     def __str__(self):

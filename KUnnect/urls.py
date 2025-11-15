@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 # [!!!] 2줄 추가 [!!!]
 from django.conf import settings
@@ -24,6 +24,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # [!!!] /lab/ URL은 your_app.urls에서 처리하도록 위임
+    path('lab/', include('lab.urls')), 
+    
+    # [!!!] 로그인/로그아웃 기능을 위해 추가 (중요)
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 # [!!!] 개발 환경에서 Media 파일을 서빙하기 위한 설정 (이 줄을 추가) [!!!]
