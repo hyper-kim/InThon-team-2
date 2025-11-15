@@ -1,7 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions, status
+from rest_framework import generics, status, permissions
+
+from .serializers import RegisterSerializer
 
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
 class LoginAPI(APIView):
@@ -32,3 +35,12 @@ class SessionCheckAPI(APIView):
             return Response({"is_authenticated": True, "username": request.user.username})
         else:
             return Response({"is_authenticated": False})
+
+class RegisterAPI(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        login(self.request, user)
