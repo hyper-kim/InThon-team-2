@@ -81,15 +81,6 @@ interface TimeSlot {
   endTime: string;
 }
 
-interface JobPosting {
-  id: number;
-  title: string;
-  field: string;
-  description: string;
-  capacity: string;
-  deadline: string;
-}
-
 interface Paper {
   id: number;
   title: string;
@@ -115,11 +106,6 @@ export function AdminPage({ onLogout }: AdminPageProps) {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
     { id: 1, day: '월요일', startTime: '', endTime: '' },
     { id: 2, day: '수요일', startTime: '', endTime: '' }
-  ]);
-
-  // State for job postings
-  const [jobPostings, setJobPostings] = useState<JobPosting[]>([
-    { id: 1, title: '', field: '', description: '', capacity: '', deadline: '' }
   ]);
 
   // State for papers
@@ -171,8 +157,8 @@ export function AdminPage({ onLogout }: AdminPageProps) {
       email: email,
       categories: selectedCategories,
       time_slots: timeSlots,
-      job_postings: jobPostings,
-      papers: papers,
+      //job_postings: jobPostings,
+      //papers: papers,
     };
 
     try {
@@ -230,22 +216,31 @@ export function AdminPage({ onLogout }: AdminPageProps) {
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <PageContainer>
           <div className="flex items-center justify-between h-16">
-            <div
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={() => navigate('/')}
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-[#A1121A] to-[#8A0F16] rounded-lg flex items-center justify-center shadow-md">
-                <GraduationCap className="w-6 h-6 text-white" />
+            <div 
+              className="flex items-center gap-3 cursor-pointer" 
+              onClick={() => navigate('/')}>
+                <div className="w-10 h-10 bg-gradient-to-br...">
+                  <GraduationCap className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-[#A1121A] font-[Paperlogy]">KuNnect 관리자</span>
               </div>
-              <span className="text-[#A1121A] font-[Paperlogy]">KuNnect 관리자</span>
+              <div className="flex items-center gap-3">
+                {/*새로 추가된 버튼 */}
+                <button
+                  onClick={() => navigate('/admin/job-postings')}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#A1121A] text-white rounded-lg hover:bg-[#8A0F16] transition-colors text-sm font-medium"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  모집 공고 올리기
+                </button>
+                <button 
+                  onClick={handleLogout} 
+                  className="flex items-center gap-2 px-4 py-2 text-[#364153] hover:text-[#A1121A] transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  로그아웃
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-[#364153] hover:text-[#A1121A] transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              로그아웃
-            </button>
           </div>
         </PageContainer>
       </div>
@@ -428,127 +423,6 @@ export function AdminPage({ onLogout }: AdminPageProps) {
             </div>
           </div>
 
-          {/* Job Postings Section */}
-          <div className="bg-white rounded-xl border border-gray-200 mb-6">
-            <div className="flex items-center gap-3 p-6 border-b border-gray-200">
-              <div className="w-10 h-10 bg-[#E9DDF3] rounded-lg flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-[#A1121A]" />
-              </div>
-              <div>
-                <h2 className="text-[#101828] font-bold">모집 공고 관리</h2>
-                <p className="text-[#4a5565] text-sm">학생 모집 공고를 작성하고 관리하세요</p>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {jobPostings.map((posting, index) => (
-                <div key={posting.id} className="space-y-4 pb-6 border-b border-gray-200 last:border-b-0 last:pb-0">
-                  <div>
-                    <label className="block text-[#364153] text-sm font-medium mb-2">공고 제목</label>
-                    <input
-                      type="text"
-                      value={posting.title}
-                      onChange={(e) => {
-                        const newPostings = [...jobPostings];
-                        newPostings[index].title = e.target.value;
-                        setJobPostings(newPostings);
-                      }}
-                      placeholder="예: 2024 봄학기 학부연구생 모집"
-                      className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] placeholder:text-[#717182] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[#364153] text-sm font-medium mb-2">모집 분야</label>
-                    <input
-                      type="text"
-                      value={posting.field}
-                      onChange={(e) => {
-                        const newPostings = [...jobPostings];
-                        newPostings[index].field = e.target.value;
-                        setJobPostings(newPostings);
-                      }}
-                      placeholder="예: 머신러닝, 딥러닝"
-                      className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] placeholder:text-[#717182] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[#364153] text-sm font-medium mb-2">공고 내용</label>
-                    <textarea
-                      value={posting.description}
-                      onChange={(e) => {
-                        const newPostings = [...jobPostings];
-                        newPostings[index].description = e.target.value;
-                        setJobPostings(newPostings);
-                      }}
-                      placeholder="공고 내용을 자세히 작성하세요"
-                      rows={4}
-                      className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] placeholder:text-[#717182] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent resize-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[#364153] text-sm font-medium mb-2">모집 인원</label>
-                      <input
-                        type="number"
-                        value={posting.capacity}
-                        onChange={(e) => {
-                          const newPostings = [...jobPostings];
-                          newPostings[index].capacity = e.target.value;
-                          setJobPostings(newPostings);
-                        }}
-                        placeholder="0"
-                        className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] placeholder:text-[#717182] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[#364153] text-sm font-medium mb-2">마감일</label>
-                      <input
-                        type="date"
-                        value={posting.deadline}
-                        onChange={(e) => {
-                          const newPostings = [...jobPostings];
-                          newPostings[index].deadline = e.target.value;
-                          setJobPostings(newPostings);
-                        }}
-                        className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => deleteJobPosting(posting.id)}
-                      className="flex items-center gap-1 text-[#A1121A] hover:text-[#8A0F16] text-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      공고 삭제
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              <button
-                onClick={addJobPosting}
-                className="w-full py-3 bg-white border-2 border-[#D1D5DC] rounded-lg text-sm font-medium text-[#0A0A0A] hover:border-[#A1121A] hover:text-[#A1121A] transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                새 공고 추가
-              </button>
-            </div>
-          </div>
-
-              <button
-                onClick={addPaper}
-                className="w-full py-3 bg-white border-2 border-[#D1D5DC] rounded-lg text-sm font-medium text-[#0A0A0A] hover:border-[#A1121A] hover:text-[#A1121A] transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                새 논문 추가
-              </button>
-            </div>
-          </div>
 
           {/* Save All Button */}
           <div className="mt-8 flex justify-center">

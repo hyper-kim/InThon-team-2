@@ -4,7 +4,7 @@ interface PrimaryButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
-  disabled?: boolean;
+  /*disabled?: boolean;*/
 }
 
 export function PrimaryButton({ children, onClick, className = '', disabled = false }: PrimaryButtonProps) {
@@ -15,7 +15,7 @@ export function PrimaryButton({ children, onClick, className = '', disabled = fa
       className={`
         px-6 py-2 bg-[#A1121A] text-white rounded-lg 
         hover:bg-[#8A0F16] transition-colors
-        ${disabled ? 'opacity-60 cursor-not-allowed hover:bg-[#A1121A]' : ''}
+        
         ${className}
       `}
     >

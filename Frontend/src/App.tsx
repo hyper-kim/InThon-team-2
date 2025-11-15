@@ -10,6 +10,8 @@ import { SignupPage } from './pages/SignupPage';
 import { AdminPage } from './pages/AdminPage';
 import { StudentProfilePage } from './pages/StudentProfilePage';
 import { API_BASE } from './config';
+import { JobPostingsPage } from './pages/JobPostingsPage';
+import { ChatPanel } from './components/ChatPanel';
 
 // Mock lab data
 export const labsData = [
@@ -371,12 +373,25 @@ export default function App() {
                 !auth.isLoggedIn ? (
                   <Navigate to="/login" replace />
                 ) : auth.userType === 'student' ? (
-                  <StudentProfilePage onLogout={handleLogout} />
+                  <StudentProfilePage />
                 ) : (
                   <Navigate to="/" replace />
                 )
               }
             />
+
+            <Route
+            path="/admin/job-postings"
+            element={
+              !auth.isLoggedIn ? (
+                <Navigate to="/login" replace />
+              ) : auth.userType === 'admin' ? (
+                <JobPostingsPage />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
