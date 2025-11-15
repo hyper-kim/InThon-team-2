@@ -24,7 +24,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
 
     try {
-      const response = await fetch('https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev/api/auth/login/', {
+      const response = await fetch('https://shiny-system-v6j7j46w4g65cpqrj-8000.app.github.dev/api/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

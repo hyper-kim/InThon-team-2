@@ -3,10 +3,12 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status, permissions
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from .serializers import RegisterSerializer
 
 # [!!!] 1. 로그인 API (lab -> accounts로 이동)
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginAPI(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
