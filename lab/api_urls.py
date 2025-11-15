@@ -9,4 +9,18 @@ urlpatterns = [
         api_views.LabProfileDetailAPI.as_view(), 
         name='api_lab_profile_detail'
     ),
+    
+    # /api/lab/public/
+    path(
+        'public/', 
+        api_views.LabPublicListAPI.as_view(), 
+        name='api_lab_public_list'
+    ),
+    
+    # /api/lab/public/<int:pk>/
+    path(
+        'public/<int:pk>/', 
+        api_views.LabPublicDetailAPI.as_view(), 
+        name='api_lab_public_detail'
+    ),
 ]
