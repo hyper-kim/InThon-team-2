@@ -29,6 +29,9 @@ urlpatterns = [
     
     # [!!!] 로그인/로그아웃 기능을 위해 추가 (중요)
     path('accounts/', include('django.contrib.auth.urls')),
+
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 ]
 
 # [!!!] 개발 환경에서 Media 파일을 서빙하기 위한 설정 (이 줄을 추가) [!!!]

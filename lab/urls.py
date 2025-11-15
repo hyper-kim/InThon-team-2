@@ -8,6 +8,4 @@ urlpatterns = [
         views.manage_lab_profile, 
         name='manage_lab_profile' # 템플릿/뷰에서 이 이름으로 URL을 찾을 수 있음
     ),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
 ]
