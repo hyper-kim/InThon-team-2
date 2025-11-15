@@ -161,67 +161,65 @@ export default function App() {
   };
 
   return (
-    <Router>
-      <div className="min-h-screen bg-[#FBFBF9]">
-        {isLoggedIn && userType === 'student' && <NavBar onLogout={handleLogout} />}
-        
-        <Routes>
-          <Route 
-            path="/login" 
-            element={
-              isLoggedIn ? (
-                <Navigate to={userType === 'admin' ? '/admin' : '/'} replace />
-              ) : (
-                <LoginPage onLogin={handleLogin} />
-              )
-            } 
-          />
-          
-          <Route 
-            path="/" 
-            element={
-              !isLoggedIn ? (
-                <Navigate to="/login" replace />
-              ) : userType === 'admin' ? (
-                <Navigate to="/admin" replace />
-              ) : (
-                <HomePage />
-              )
-            } 
-          />
-          
-          <Route 
-            path="/lab/:id" 
-            element={
-              !isLoggedIn ? (
-                <Navigate to="/login" replace />
-              ) : userType === 'student' ? (
-                <LabDetailPage />
-              ) : (
-                <Navigate to="/admin" replace />
-              )
-            } 
-          />
-          
-          <Route 
-            path="/admin" 
-            element={
-              !isLoggedIn ? (
-                <Navigate to="/login" replace />
-              ) : userType === 'admin' ? (
-                <AdminPage onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } 
-          />
-          
-          <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} replace />} />
-        </Routes>
+    <div className="min-h-screen bg-[#FBFBF9]">
+      {isLoggedIn && userType === 'student' && <NavBar onLogout={handleLogout} />}
 
-        {/* AI Assistant Panel - Only visible for students */}
-        {isLoggedIn && userType === 'student' && <ChatPanel />}
-      </div>
-    </Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            isLoggedIn ? (
+              <Navigate to={userType === 'admin' ? '/admin' : '/'} replace />
+            ) : (
+              <LoginPage onLogin={handleLogin} />
+            )
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            !isLoggedIn ? (
+              <Navigate to="/login" replace />
+            ) : userType === 'admin' ? (
+              <Navigate to="/admin" replace />
+            ) : (
+              <HomePage />
+            )
+          }
+        />
+
+        <Route
+          path="/lab/:id"
+          element={
+            !isLoggedIn ? (
+              <Navigate to="/login" replace />
+            ) : userType === 'student' ? (
+              <LabDetailPage />
+            ) : (
+              <Navigate to="/admin" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            !isLoggedIn ? (
+              <Navigate to="/login" replace />
+            ) : userType === 'admin' ? (
+              <AdminPage onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} replace />} />
+      </Routes>
+
+      {/* AI Assistant Panel - Only visible for students */}
+      {isLoggedIn && userType === 'student' && <ChatPanel />}
+    </div>
   );
 }
