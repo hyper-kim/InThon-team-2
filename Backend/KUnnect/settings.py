@@ -148,7 +148,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://shiny-system-v6j7j46w4g65cpqrj-3000.app.github.dev",
     "https://reimagined-space-giggle-qpx9gqp4j5wf5g4-3000.app.github.dev",
-    "https://reimagined-space-giggle-qpx9gqp4j5wf5g4-8000.app.github.dev",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
