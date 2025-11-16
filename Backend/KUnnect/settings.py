@@ -146,6 +146,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # React 개발 서버 주소
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
+    "https://in-thon-team-2.vercel.app/",
     "https://reimagined-space-giggle-qpx9gqp4j5wf5g4-3000.app.github.dev",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
