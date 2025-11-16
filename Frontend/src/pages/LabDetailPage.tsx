@@ -15,6 +15,19 @@ interface LabDetail extends Lab {
   // ... 기타 필드
 }
 
+function dayStr(day: number): string {
+  switch (day) {
+    case 0: return '일요일';
+    case 1: return '월요일';
+    case 2: return '화요일';
+    case 3: return '수요일';
+    case 4: return '목요일';
+    case 5: return '금요일';
+    case 6: return '토요일';
+    default: return '';
+  }
+}
+
 export function LabDetailPage({ labs }: { labs: Lab[] }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -52,8 +65,8 @@ export function LabDetailPage({ labs }: { labs: Lab[] }) {
         <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div>
-            {/* Chat Panel for this lab */}
-            <ChatPanel labId={id || ''} />
+              {/* Chat Panel for this lab */}
+              <ChatPanel labId={id || ''} />
               <h1 className="text-4xl mb-3 font-[Paperlogy]">{lab.name}</h1>
               <div className="flex items-center gap-2 text-[#4a5565] mb-4">
                 <Users className="w-5 h-5" />
@@ -76,8 +89,7 @@ export function LabDetailPage({ labs }: { labs: Lab[] }) {
         {/* Lab Introduction */}
         <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 shadow-sm">
           <h2 className="text-2xl mb-4 font-[Paperlogy]">연구실 소개</h2>
-          {/* <p className="text-[#364153] leading-relaxed">{lab.fullDescription}</p> */}
-          <p className="text-[#4a5565] mt-4 leading-relaxed">{lab.description}</p>
+          <p className="text-[#4a5565] mt-4 leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>{lab.description}</p>
         </div>
 
         {/* Open Positions */}
@@ -107,24 +119,6 @@ export function LabDetailPage({ labs }: { labs: Lab[] }) {
           )}
         </div>
 
-        {/* Papers */}
-        <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <FileText className="w-6 h-6 text-[#A1121A]" />
-            <h2 className="text-2xl font-[Paperlogy]">주요 논문</h2>
-          </div>
-          <div className="space-y-4">
-            {/* {lab.papers.map((paper, index) => (
-              <div key={index} className="border-l-4 border-[#A1121A] pl-4 py-2">
-                <h3 className="text-lg text-[#101828] mb-1">{paper.title}</h3>
-                <p className="text-[#4a5565]">
-                  {paper.journal} • {paper.year}
-                </p>
-              </div>
-            ))} */}
-          </div>
-        </div>
-
         {/* Consultation Schedule */}
         <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
           <div className="flex items-center gap-2 mb-6">
@@ -132,21 +126,19 @@ export function LabDetailPage({ labs }: { labs: Lab[] }) {
             <h2 className="text-2xl font-[Paperlogy]">상담 일정</h2>
           </div>
           <div className="space-y-3">
-            {/* {lab.consultationSchedule.map((schedule, index) => (
+            {lab.officeHours.map((schedule, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                 <Clock className="w-5 h-5 text-[#A1121A]" />
                 <div className="flex-1">
-                  <span className="font-medium text-[#101828]">{schedule.day}</span>
-                  <span className="mx-3 text-[#4a5565]">•</span>
-                  <span className="text-[#4a5565]">{schedule.time}</span>
+                  <span className="font-medium text-[#101828]">{dayStr(parseInt(schedule.day))}</span>
                 </div>
-                <span className="text-[#4a5565]">{schedule.location}</span>
+                <span className="text-[#4a5565]">{schedule.startTime} - {schedule.endTime}</span>
               </div>
-            ))} */}
+            ))}
           </div>
           <div className="mt-6 p-4 bg-[#FFF9F0] border border-[#FFE2B8] rounded-lg">
             <p className="text-[#364153]">
-              {/* 💡 <strong>상담 예약:</strong> 이메일로 사전 예약을 부탁드립니다. ({lab.professorEmail}) */}
+              💡 <strong>상담 예약:</strong> 이메일로 사전 예약을 부탁드립니다.
             </p>
           </div>
         </div>

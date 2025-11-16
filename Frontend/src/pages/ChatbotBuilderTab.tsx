@@ -4,7 +4,7 @@ import { Link, FileText, Fingerprint, Loader2 } from 'lucide-react';
 import { CHATBOT_API_BASE } from '../config';
 
 interface ChatbotBuilderTabProps {
-  labId: string;
+  labId: number;
 }
 
 export function ChatbotBuilderTab({ labId }: ChatbotBuilderTabProps) {

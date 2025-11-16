@@ -148,7 +148,7 @@ export function StudentProfilePage({
     useState<Section>("basic");
 
   // Basic Info
-  /*const [name, setName] = useState('홍길동');*/
+  const [name, setName] = useState('홍길동');
   const [studentId, setStudentId] = useState("");
   const [department, setDepartment] = useState("");
   const [academicStatus, setAcademicStatus] = useState("");

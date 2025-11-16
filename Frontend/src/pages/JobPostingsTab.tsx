@@ -14,12 +14,10 @@ interface JobPosting {
 }
 
 interface JobPostingsTabProps {
-  labId: string;
+  labId: number;
 }
 
 export function JobPostingsTab({ labId }: JobPostingsTabProps) {
-  const navigate = useNavigate();
-
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([
     { id: 1, title: '', field: '', description: '', capacity: '', deadline: '' }
   ]);

@@ -5,20 +5,7 @@ import { FileText, Clock, Briefcase, BookOpen, BotMessageSquare, Plus, Trash2, G
 import { API_BASE } from '../config';
 import { ChatbotBuilderTab } from './ChatbotBuilderTab';
 import { JobPostingsTab } from './JobPostingsTab';
-
-interface TimeSlot {
-  id: number;
-  day: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface Paper {
-  id: number;
-  title: string;
-  journal: string;
-  year: string;
-}
+import { parseLab, OfficeHour } from '../App';
 
 interface AdminPageProps {
   onLogout: () => void;
@@ -31,7 +18,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
   const [activeTab, setActiveTab] = useState('info');
 
   // State for basic info
-  const [labId, setLabId] = useState<string | null>(null); // To store the lab's string ID
+  const [labId, setLabId] = useState<number | null>(null); // To store the lab's string ID
 
   const [labName, setLabName] = useState('');
   const [professorName, setProfessorName] = useState('');
@@ -40,15 +27,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   // State for time slots
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
-    { id: 1, day: '월요일', startTime: '', endTime: '' },
-    { id: 2, day: '수요일', startTime: '', endTime: '' }
-  ]);
-
-  // State for papers
-  const [papers, setPapers] = useState<Paper[]>([
-    { id: 1, title: '', journal: '', year: '' }
-  ]);
+  const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
 
   // Loading state and initial profile fetch moved inside component
   const [isLoading, setIsLoading] = useState(true);
@@ -65,15 +44,14 @@ export function AdminPage({ onLogout }: AdminPageProps) {
 
         if (response.ok) {
           const data = await response.json();
+          const lab = parseLab(data);
 
-          setLabId(data.id ? String(data.id) : null);
-          setLabName(data.lab_name || '');
-          setProfessorName(data.professor_name || '');
-          setLabDescription(data.lab_description || '');
-          setEmail(data.email || '');
-          setSelectedCategories(data.categories || []);
-          setTimeSlots(data.time_slots || []);
-          setPapers(data.papers || []);
+          setLabId(lab.id);
+          setLabName(lab.name);
+          setProfessorName(lab.professor);
+          setLabDescription(lab.description);
+          setSelectedCategories(lab.tags);
+          setOfficeHours(lab.officeHours);
         } else {
           console.error('프로필을 불러오지 못했습니다.');
         }
@@ -89,13 +67,17 @@ export function AdminPage({ onLogout }: AdminPageProps) {
 
   const handleSaveAll = async () => {
     const profileData = {
+      id: labId,
       lab_name: labName,
       professor_name: professorName,
       lab_description: labDescription,
-      email: email,
-      categories: selectedCategories,
-      time_slots: timeSlots,
-      //job_postings: jobPostings,
+      tags_list: selectedCategories,
+      availability_slots: officeHours.map(slot => ({
+        day: slot.day,
+        start_time: slot.startTime,
+        end_time: slot.endTime,
+      })),
+      //jobposting_set: jobPostings,
       //papers: papers,
     };
 
@@ -124,12 +106,12 @@ export function AdminPage({ onLogout }: AdminPageProps) {
     navigate('/login');
   };
 
-  const addTimeSlot = () => {
-    setTimeSlots([...timeSlots, { id: Date.now(), day: '', startTime: '', endTime: '' }]);
+  const addOfficeHour = () => {
+    setOfficeHours([...officeHours, { id: Date.now(), day: '1', startTime: '', endTime: '' }]);
   };
 
-  const deleteTimeSlot = (id: number) => {
-    setTimeSlots(timeSlots.filter(slot => slot.id !== id));
+  const deleteOfficeHour = (id: number) => {
+    setOfficeHours(officeHours.filter(slot => slot.id !== id));
   };
 
   return (
@@ -300,7 +282,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                   </div>
 
                   <div className="p-6 space-y-4">
-                    {timeSlots.map((slot, index) => (
+                    {officeHours.map((slot, index) => (
                       <div key={slot.id} className="bg-[#FBFBF9] border border-[#D1D5DC] rounded-lg p-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
@@ -308,17 +290,18 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                             <select
                               value={slot.day}
                               onChange={(e) => {
-                                const newSlots = [...timeSlots];
+                                console.log("Day change:", e.target.value);
+                                const newSlots = [...officeHours];
                                 newSlots[index].day = e.target.value;
-                                setTimeSlots(newSlots);
+                                setOfficeHours(newSlots);
                               }}
                               className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
                             >
-                              <option value="월요일">월요일</option>
-                              <option value="화요일">화요일</option>
-                              <option value="수요일">수요일</option>
-                              <option value="목요일">목요일</option>
-                              <option value="금요일">금요일</option>
+                              <option value="1">월요일</option>
+                              <option value="2">화요일</option>
+                              <option value="3">수요일</option>
+                              <option value="4">목요일</option>
+                              <option value="5">금요일</option>
                             </select>
                           </div>
                           <div>
@@ -327,9 +310,9 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                               type="time"
                               value={slot.startTime}
                               onChange={(e) => {
-                                const newSlots = [...timeSlots];
+                                const newSlots = [...officeHours];
                                 newSlots[index].startTime = e.target.value;
-                                setTimeSlots(newSlots);
+                                setOfficeHours(newSlots);
                               }}
                               className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
                             />
@@ -340,9 +323,9 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                               type="time"
                               value={slot.endTime}
                               onChange={(e) => {
-                                const newSlots = [...timeSlots];
+                                const newSlots = [...officeHours];
                                 newSlots[index].endTime = e.target.value;
-                                setTimeSlots(newSlots);
+                                setOfficeHours(newSlots);
                               }}
                               className="w-full px-3 py-2 bg-white border border-[#D1D5DC] rounded-lg text-sm text-[#364153] focus:outline-none focus:ring-2 focus:ring-[#A1121A] focus:border-transparent"
                             />
@@ -350,7 +333,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                         </div>
                         <div className="mt-3 flex justify-end">
                           <button
-                            onClick={() => deleteTimeSlot(slot.id)}
+                            onClick={() => deleteOfficeHour(slot.id)}
                             className="flex items-center gap-1 text-[#A1121A] hover:text-[#8A0F16] text-sm"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -361,7 +344,7 @@ export function AdminPage({ onLogout }: AdminPageProps) {
                     ))}
 
                     <button
-                      onClick={addTimeSlot}
+                      onClick={addOfficeHour}
                       className="w-full py-3 bg-white border-2 border-[#D1D5DC] rounded-lg text-sm font-medium text-[#0A0A0A] hover:border-[#A1121A] hover:text-[#A1121A] transition-colors flex items-center justify-center gap-2"
                     >
                       <Plus className="w-4 h-4" />

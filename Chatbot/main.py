@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from typing import List
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 import google.generativeai.types as genai_types
@@ -19,6 +20,19 @@ Answer with short and concise manner."""
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 app = FastAPI()
+
+origins = [
+    "https://in-thon-team-2.vercel.app/",
+    "https://reimagined-space-giggle-qpx9gqp4j5wf5g4-3000.app.github.dev",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods
+    allow_headers=["*"], # Allows all headers
+)
 
 BASE_DIR = "labs"
 STATIC_DIR = "static"
