@@ -4,7 +4,7 @@ interface PrimaryButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
-  /*disabled?: boolean;*/
+  disabled?: boolean;
 }
 
 export function PrimaryButton({ children, onClick, className = '', disabled = false }: PrimaryButtonProps) {

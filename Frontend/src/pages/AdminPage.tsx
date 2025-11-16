@@ -193,14 +193,6 @@ export function AdminPage({ onLogout }: AdminPageProps) {
     setTimeSlots(timeSlots.filter(slot => slot.id !== id));
   };
 
-  const addJobPosting = () => {
-    setJobPostings([...jobPostings, { id: Date.now(), title: '', field: '', description: '', capacity: '', deadline: '' }]);
-  };
-
-  const deleteJobPosting = (id: number) => {
-    setJobPostings(jobPostings.filter(posting => posting.id !== id));
-  };
-
   const addPaper = () => {
     setPapers([...papers, { id: Date.now(), title: '', journal: '', year: '' }]);
   };
