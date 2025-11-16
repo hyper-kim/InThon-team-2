@@ -147,6 +147,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://reimagined-space-giggle-qpx9gqp4j5wf5g4-3000.app.github.dev",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 CORS_PREFLIGHT_EXIT = True
 # (나중에 React를 'build'해서 Django가 직접 서빙할 때는 이 설정이 필요 없지만,
