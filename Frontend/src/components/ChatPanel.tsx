@@ -6,8 +6,6 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 const initialMessages = [
   { id: 1, text: '안녕하세요! AI 조교입니다. 무엇을 도와드릴까요?', isUser: false },
-  { id: 2, text: 'I\'m interested in AI and computer vision research.', isUser: true },
-  { id: 3, text: 'Great! I recommend checking out the AI & Machine Learning Lab and the Computer Vision Research Lab. Would you like more details about either of these?', isUser: false }
 ];
 
 type ChatPanelProps = { labId?: string };
@@ -18,6 +16,18 @@ export function ChatPanel({ labId = '' }: ChatPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages, isMinimized, isOpen, isLoading]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -73,9 +83,8 @@ export function ChatPanel({ labId = '' }: ChatPanelProps) {
 
       {/* Chat Popup */}
       {isOpen && (
-        <div className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 transition-all ${
-          isMinimized ? 'w-80 h-14' : 'w-96 h-[600px]'
-        }`}>
+        <div className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 transition-all ${isMinimized ? 'w-80 h-14' : 'w-96 h-[600px]'
+          }`}>
           {/* Header */}
           <div className="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-[#A1121A] to-[#8A0F16] text-white rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -109,11 +118,14 @@ export function ChatPanel({ labId = '' }: ChatPanelProps) {
 
           {!isMinimized && (
             <>
-              {/* Messages */}
+              {/* ⭐ MESSAGE AREA with auto-scroll anchor */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                 {messages.map(msg => (
                   <ChatMessage key={msg.id} message={msg.text} isUser={msg.isUser} />
                 ))}
+
+                {/* ⭐ AUTO-SCROLL TARGET */}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input */}

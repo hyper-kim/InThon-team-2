@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, Calendar, FileText, Users, Clock } from 'lucide-react'
 import { PageContainer } from '../components/PageContainer';
 import { TagChip } from '../components/TagChip';
 import { ChatPanel } from '../components/ChatPanel';
-import { Lab } from '../App';
+import { Lab, parseLab } from '../App';
 
 export function LabDetailPage({ labs }: { labs: Lab[] }) {
   const { id } = useParams();
@@ -123,17 +123,17 @@ export function LabDetailPage({ labs }: { labs: Lab[] }) {
             <h2 className="text-2xl font-[Paperlogy]">상담 일정</h2>
           </div>
           <div className="space-y-3">
-            {/* {lab.consultationSchedule.map((schedule, index) => (
+            {lab.officeHours.map((schedule, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                 <Clock className="w-5 h-5 text-[#A1121A]" />
                 <div className="flex-1">
                   <span className="font-medium text-[#101828]">{schedule.day}</span>
                   <span className="mx-3 text-[#4a5565]">•</span>
-                  <span className="text-[#4a5565]">{schedule.time}</span>
+                  <span className="text-[#4a5565]">{schedule.day}</span>
                 </div>
-                <span className="text-[#4a5565]">{schedule.location}</span>
+                <span className="text-[#4a5565]">{schedule.startTime} - {schedule.endTime}</span>
               </div>
-            ))} */}
+            ))}
           </div>
           <div className="mt-6 p-4 bg-[#FFF9F0] border border-[#FFE2B8] rounded-lg">
             <p className="text-[#364153]">

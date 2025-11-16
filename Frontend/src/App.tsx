@@ -24,6 +24,13 @@ interface OpenPosition {
   requirements: string;
 }
 
+export interface OfficeHour {
+  id: number;
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
 export type Lab = {
   id: number;
   name: string;
@@ -31,7 +38,26 @@ export type Lab = {
   tags: string[];
   professor: string;
   openPositions: OpenPosition[];
+  officeHours: OfficeHour[];
 };
+
+export const parseLab = (lab: any): Lab => ({
+  id: lab.id,
+  name: lab.lab_name,
+  description: lab.lab_description || '',
+  tags: lab.tags_list || [],
+  professor: lab.professor_name,
+  openPositions: (lab.jobposting_set || []).map((jp: any) => ({
+    title: jp.title,
+    deadline: jp.deadline || '',
+    requirements: jp.description || ''
+  })),
+  officeHours: lab.availability_slots ? lab.availability_slots.map((oh: any) => ({
+    day: oh.day,
+    startTime: oh.start_time,
+    endTime: oh.end_time
+  })) : []
+});
 
 /**
  * useState의 '지연 초기화'에 사용될 함수입니다.
@@ -124,18 +150,7 @@ export default function App() {
           const data = await response.json();
           console.log('[LABS] Received data:', data);
           // Transform backend data to match component expectations
-          const transformedData = data.map((lab: any) => ({
-            id: lab.id,
-            name: lab.lab_name,
-            description: lab.lab_description || '',
-            tags: lab.tags_list || [],
-            professor: lab.professor_name,
-            openPositions: (lab.jobposting_set || []).map((jp: any) => ({
-              title: jp.title,
-              deadline: jp.deadline || '',
-              requirements: jp.description || ''
-            })),
-          }));
+          const transformedData = data.map(parseLab);
           setLabsData(transformedData);
         } else {
           setLabsData([]);
