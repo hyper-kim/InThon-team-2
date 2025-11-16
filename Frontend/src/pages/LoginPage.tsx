@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, User, Lock, LogIn } from 'lucide-react';
 import { API_BASE } from '../config';
 
-type UserType = 'student' | 'admin';
+type UserType = 'student' | 'lab_admin';
 
 interface LoginPageProps {
   onLogin: (userType: UserType, userId: string) => void;
@@ -117,9 +117,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </button>
           <button
             type="button"
-            onClick={() => setUserType('admin')}
+            onClick={() => setUserType('lab_admin')}
             className={`flex-1 py-3 rounded-lg transition-all font-bold text-center ${
-              userType === 'admin'
+              userType === 'lab_admin'
                 ? 'bg-white text-[#A1121A] shadow-md'
                 : 'text-[#4a5565] hover:text-[#A1121A]'
             }`}

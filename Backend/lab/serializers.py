@@ -27,7 +27,7 @@ class LabProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabProfile
         fields = [
-            'id', 'lab_name', 'professor_name', 'description',
+            'id', 'lab_name', 'professor_name', 'lab_description',
             'tags', 'tags_list',
             'availability_slots', 'jobposting_set', 'user',
             

@@ -92,6 +92,7 @@ export function SignupPage() {
           body: JSON.stringify({
             email: email,
             password: password,
+            role: 'student',
           }),
         });
 

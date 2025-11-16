@@ -4,12 +4,12 @@ import { ArrowLeft, Mail, Calendar, FileText, Users, Clock } from 'lucide-react'
 import { PageContainer } from '../components/PageContainer';
 import { TagChip } from '../components/TagChip';
 import { ChatPanel } from '../components/ChatPanel';
-import { labsData } from '../App';
+import { Lab } from '../App';
 
-export function LabDetailPage() {
+export function LabDetailPage({ labs }: { labs: Lab[] }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const lab = labsData.find(l => l.id === parseInt(id || '0'));
+  const lab = (labs || []).find(l => l.id === parseInt(id || '0'));
 
   if (!lab) {
     return (
@@ -51,9 +51,9 @@ export function LabDetailPage() {
                 <span className="text-lg">{lab.professor}</span>
                 <span className="mx-2">•</span>
                 <Mail className="w-4 h-4" />
-                <a href={`mailto:${lab.professorEmail}`} className="hover:text-[#A1121A] transition-colors">
+                {/* <a href={`mailto:${lab.professorEmail}`} className="hover:text-[#A1121A] transition-colors">
                   {lab.professorEmail}
-                </a>
+                </a> */}
               </div>
               <div className="flex flex-wrap gap-2">
                 {lab.tags.map(tag => (
@@ -67,7 +67,7 @@ export function LabDetailPage() {
         {/* Lab Introduction */}
         <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 shadow-sm">
           <h2 className="text-2xl mb-4 font-[Paperlogy]">연구실 소개</h2>
-          <p className="text-[#364153] leading-relaxed">{lab.fullDescription}</p>
+          {/* <p className="text-[#364153] leading-relaxed">{lab.fullDescription}</p> */}
           <p className="text-[#4a5565] mt-4 leading-relaxed">{lab.description}</p>
         </div>
 
@@ -105,14 +105,14 @@ export function LabDetailPage() {
             <h2 className="text-2xl font-[Paperlogy]">주요 논문</h2>
           </div>
           <div className="space-y-4">
-            {lab.papers.map((paper, index) => (
+            {/* {lab.papers.map((paper, index) => (
               <div key={index} className="border-l-4 border-[#A1121A] pl-4 py-2">
                 <h3 className="text-lg text-[#101828] mb-1">{paper.title}</h3>
                 <p className="text-[#4a5565]">
                   {paper.journal} • {paper.year}
                 </p>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
 
@@ -123,7 +123,7 @@ export function LabDetailPage() {
             <h2 className="text-2xl font-[Paperlogy]">상담 일정</h2>
           </div>
           <div className="space-y-3">
-            {lab.consultationSchedule.map((schedule, index) => (
+            {/* {lab.consultationSchedule.map((schedule, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                 <Clock className="w-5 h-5 text-[#A1121A]" />
                 <div className="flex-1">
@@ -133,11 +133,11 @@ export function LabDetailPage() {
                 </div>
                 <span className="text-[#4a5565]">{schedule.location}</span>
               </div>
-            ))}
+            ))} */}
           </div>
           <div className="mt-6 p-4 bg-[#FFF9F0] border border-[#FFE2B8] rounded-lg">
             <p className="text-[#364153]">
-              💡 <strong>상담 예약:</strong> 이메일로 사전 예약을 부탁드립니다. ({lab.professorEmail})
+              {/* 💡 <strong>상담 예약:</strong> 이메일로 사전 예약을 부탁드립니다. ({lab.professorEmail}) */}
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export function LabDetailPage() {
         {/* Contact Button */}
         <div className="mt-8 flex justify-center">
           <a
-            href={`mailto:${lab.professorEmail}?subject=연구실 문의: ${lab.name}`}
+            // href={`mailto:${lab.professorEmail}?subject=연구실 문의: ${lab.name}`}
             className="px-8 py-4 bg-[#A1121A] text-white rounded-lg hover:bg-[#8A0F16] transition-colors shadow-md text-lg"
           >
             교수님께 문의하기

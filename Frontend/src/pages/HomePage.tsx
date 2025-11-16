@@ -3,11 +3,14 @@ import { PageContainer } from '../components/PageContainer';
 import { FilterBar } from '../components/FilterBar';
 import { LabCard } from '../components/LabCard';
 import { HeroBanner } from '../components/HeroBanner';
-import { labsData } from '../App';
-
 const allTags = ['인공지능', '뇌공학', '데이터사이언스', '컴퓨터비전', 'HCI'];
 
-export function HomePage() {
+interface HomePageProps {
+  labs: any[];
+  labsLoading: boolean;
+}
+
+export function HomePage({ labs, labsLoading }: HomePageProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,7 +21,7 @@ export function HomePage() {
   };
 
   // Filter labs based on search and selected tags
-  const filteredLabs = labsData.filter(lab => {
+  const filteredLabs = labs.filter(lab => {
     const matchesSearch = searchQuery === '' || 
       lab.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lab.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -51,17 +54,24 @@ export function HomePage() {
           onTagToggle={handleTagToggle}
         />
 
-        {/* Lab Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {filteredLabs.map(lab => (
-            <LabCard key={lab.id} lab={lab} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {labsLoading ? (
+          <div className="text-center py-12 text-gray-500">랩실 정보를 불러오는 중...</div>
+        ) : (
+          <>
+            {/* Lab Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {filteredLabs.map(lab => (
+                <LabCard key={lab.id} lab={lab} />
+              ))}
+            </div>
 
-        {filteredLabs.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No labs found matching your criteria
-          </div>
+            {filteredLabs.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                No labs found matching your criteria
+              </div>
+            )}
+          </>
         )}
       </PageContainer>
     </>
