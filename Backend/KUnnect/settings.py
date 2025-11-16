@@ -179,6 +179,6 @@ SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True  # SAMESITE='None'을 사용하려면 쿠키가 https를 통해서만 전송되어야 함
 
 # CSRF 쿠키에도 동일하게 적용합니다.
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 # --- [수정 끝] ---

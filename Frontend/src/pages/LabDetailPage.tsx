@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Calendar, FileText, Users, Clock } from 'lucide-react';
+import { ArrowLeft, Mail, Calendar, FileText, Users, Clock, Zap, BookOpen } from 'lucide-react';
 import { PageContainer } from '../components/PageContainer';
 import { TagChip } from '../components/TagChip';
 import { ChatPanel } from '../components/ChatPanel';
-import { Lab } from '../App';
+import { Lab } from '../App'; // Lab 인터페이스는 그대로 사용
+import axios from 'axios';
+import { API_BASE } from '../config'; //
+import { Card, CardHeader, CardContent, CardTitle } from '../components/ui/card'; // Card 컴포넌트 임포트 확인 필요
+
+interface LabDetail extends Lab {
+  research_summary_ko: string;
+  dbpia_papers_json: Array<{ title: string; link: string }>;
+  // ... 기타 필드
+}
 
 export function LabDetailPage({ labs }: { labs: Lab[] }) {
   const { id } = useParams();
