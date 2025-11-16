@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../components/PageContainer';
 import { FileText, Clock, Briefcase, BookOpen, BotMessageSquare, Plus, Trash2, GraduationCap, LogOut } from 'lucide-react';
 import { API_BASE } from '../config';
-import { PrimaryButton } from '../components/PrimaryButton';
-import { Lab } from '../App';
 import { ChatbotBuilderTab } from './ChatbotBuilderTab';
+import { JobPostingsTab } from './JobPostingsTab';
 
 interface TimeSlot {
   id: number;
@@ -28,7 +27,8 @@ interface AdminPageProps {
 export function AdminPage({ onLogout }: AdminPageProps) {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('info'); // 'info' or 'chatbot'
+  // 'info', 'chatbot', or 'job_position'
+  const [activeTab, setActiveTab] = useState('info');
 
   // State for basic info
   const [labId, setLabId] = useState<string | null>(null); // To store the lab's string ID
@@ -148,14 +148,6 @@ export function AdminPage({ onLogout }: AdminPageProps) {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/admin/job-postings')}
-                className="flex items-center gap-2 px-4 py-2 bg-[#A1121A] text-white rounded-lg hover:bg-[#8A0F16] transition-colors text-sm font-medium"
-              >
-                <Briefcase className="w-4 h-4" />
-                모집 공고 올리기
-              </button>
-
-              <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-[#364153] hover:text-[#A1121A] transition-colors"
               >
@@ -171,21 +163,31 @@ export function AdminPage({ onLogout }: AdminPageProps) {
         <div className="py-12">
           <div className="mb-8 border-b border-gray-200">
             <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-              <button
-                onClick={() => setActiveTab('info')}
-                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === 'info' ? 'border-[#A1121A] text-[#A1121A]' : 'border-transparent text-[#4a5565] hover:text-gray-700 hover:border-gray-300'}`}
-              >
-                <FileText className="w-5 h-5" />
-                기본 정보 관리
-              </button>
-              
-              <button
-                onClick={() => setActiveTab('chatbot')}
-                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === 'chatbot' ? 'border-[#A1121A] text-[#A1121A]' : 'border-transparent text-[#4a5565] hover:text-gray-700 hover:border-gray-300'}`}
-              >
-                <BotMessageSquare className="w-5 h-5" />
-                챗봇 빌더
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveTab('info')}
+                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === 'info' ? 'border-[#A1121A] text-[#A1121A]' : 'border-transparent text-[#4a5565] hover:text-gray-700 hover:border-gray-300'}`}
+                >
+                  <FileText className="w-5 h-5" />
+                  기본 정보 관리
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('chatbot')}
+                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === 'chatbot' ? 'border-[#A1121A] text-[#A1121A]' : 'border-transparent text-[#4a5565] hover:text-gray-700 hover:border-gray-300'}`}
+                >
+                  <BotMessageSquare className="w-5 h-5" />
+                  챗봇 빌더
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('job_position')}
+                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === 'job_position' ? 'border-[#A1121A] text-[#A1121A]' : 'border-transparent text-[#4a5565] hover:text-gray-700 hover:border-gray-300'}`}
+                >
+                  <Briefcase className="w-5 h-5" />
+                  모집 공고 관리
+                </button>
+              </div>
             </nav>
           </div>
 
@@ -378,14 +380,12 @@ export function AdminPage({ onLogout }: AdminPageProps) {
               </>
             )}
 
-            {isLoading ? (
-              <p>Loading lab data...</p>
-            ) : labId ? (
+            {activeTab === 'job_position' && labId && (
+              <JobPostingsTab labId={labId} />
+            )}
+
+            {activeTab === 'chatbot' && labId && (
               <ChatbotBuilderTab labId={labId} />
-            ) : (
-              <div className="text-center p-8 bg-white rounded-lg border">
-                <p className="text-gray-600">챗봇 빌더를 위한 연구실 ID를 불러오지 못했습니다.</p>
-              </div>
             )}
           </div>
         </div>

@@ -1,5 +1,3 @@
-// Frontend/WEBAPP/src/components/ChatbotBuilderTab.tsx
-
 import React, { useState } from 'react';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Link, FileText, Fingerprint, Loader2 } from 'lucide-react';

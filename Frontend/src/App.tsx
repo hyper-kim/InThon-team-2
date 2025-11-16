@@ -10,7 +10,6 @@ import { SignupPage } from './pages/SignupPage';
 import { AdminPage } from './pages/AdminPage';
 import { StudentProfilePage } from './pages/StudentProfilePage';
 import { API_BASE } from './config';
-import { JobPostingsPage } from './pages/JobPostingsPage';
 
 // 인증 상태를 객체로 관리
 interface AuthState {
@@ -309,19 +308,6 @@ export default function App() {
                     <Navigate to="/login" replace />
                   ) : auth.userType === 'student' ? (
                     <StudentProfilePage onLogout={handleLogout} />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-
-              <Route
-                path="/admin/job-postings"
-                element={
-                  !auth.isLoggedIn ? (
-                    <Navigate to="/login" replace />
-                  ) : auth.userType === 'lab_admin' ? (
-                    <JobPostingsPage />
                   ) : (
                     <Navigate to="/" replace />
                   )
